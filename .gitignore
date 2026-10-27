@@ -1,6 +1,6 @@
 build/
 dist/
-nbproject/private/
+**/nbproject/private/
 config.properties
 .DS_Store
 Thumbs.db
