@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package com.sileliz.api;
+package pe.tecsup.sileliz.api;
 
 import com.google.gson.JsonObject;
 import jakarta.servlet.ServletException;
@@ -23,7 +23,7 @@ public class ApiSaludServlet extends HttpServlet {
         response.setContentType("application/json;charset=UTF-8");
         
         JsonObject json = new JsonObject();
-        json.addProperty("estado", "OK");
+        json.addProperty("estado","ok");
         json.addProperty("proyecto", "Sileliz");
         json.addProperty("version", "v3.1.2");
 
