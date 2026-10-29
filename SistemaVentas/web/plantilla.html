@@ -19,8 +19,62 @@
     </header>
 
     <main id="contenido-principal">
-        <h2>Bienvenido a la vista base</h2>
-        <p>Esta es la maqueta principal para el módulo UI.</p>
+        <h2>Gestión de Productos</h2>
+        
+        <!-- Formulario de Registro/Edición -->
+        <section class="formulario-container">
+            <h3>Registrar / Editar Producto</h3>
+            <form id="form-producto">
+                <div class="form-group">
+                    <label for="codigo">Código:</label>
+                    <input type="text" id="codigo" name="codigo" placeholder="Ej: PROD001" required>
+                </div>
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Nombre del producto" required>
+                </div>
+                <div class="form-group">
+                    <label for="precio">Precio:</label>
+                    <input type="number" id="precio" name="precio" step="0.01" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="stock">Stock:</label>
+                    <input type="number" id="stock" name="stock" placeholder="0" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="reset" class="btn btn-secondary">Limpiar</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Tabla de Listado -->
+        <section class="tabla-container">
+            <h3>Listado de Productos</h3>
+            <table class="tabla-datos">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-body">
+                    <tr>
+                        <td>PROD001</td>
+                        <td>Producto Ejemplo</td>
+                        <td>S/ 25.00</td>
+                        <td>10</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning">Editar</button>
+                            <button class="btn btn-sm btn-danger">Eliminar</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
     </main>
 
     <footer>
