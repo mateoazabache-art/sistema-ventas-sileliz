@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Productos - Sileliz</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <header>
+        <h1>Sistema de Ventas - Sileliz</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="#">Ventas</a></li>
+                <li><a href="productos.html">Productos</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="contenido-principal">
+        <h2>Gestión de Productos</h2>
+
+        <!-- Formulario de productos -->
+        <section class="formulario-container">
+            <h3>Registrar producto</h3>
+
+            <form id="form-producto" novalidate>
+                <input type="hidden" id="id-producto">
+
+                <div class="form-group">
+                    <label for="codigo">Código:</label>
+                    <input type="text" id="codigo" name="codigo"
+                           maxlength="20" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre"
+                           maxlength="100" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="descripcion">Descripción:</label>
+                    <textarea id="descripcion" name="descripcion"
+                              maxlength="250"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="categoria">Categoría:</label>
+                    <select id="categoria" name="categoria" required>
+                    <option value="">Seleccionar categoría</option>
+                    <option value="1">Polos</option>
+                    <option value="2">Pantalones</option>
+                    <option value="3">Vestidos</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="precio">Precio de venta (S/):</label>
+                    <input type="number" id="precio" name="precio"
+                           min="0.01" step="0.01" required>
+                </div>
+
+                <!-- Variantes -->
+                <section class="variantes-container">
+                    <h3>Variantes del producto</h3>
+                    <p>Registra las tallas, colores y stock disponibles.</p>
+
+                    <div class="tabla-container">
+                        <table class="tabla-datos">
+                            <thead>
+                                <tr>
+                                    <th>Talla</th>
+                                    <th>Color</th>
+                                    <th>SKU</th>
+                                    <th>Stock</th>
+                                    <th>Stock mínimo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-variantes">
+                                <!-- Las variantes se agregarán con JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <button type="button" id="btn-agregar-variante"
+                            class="btn btn-secondary">
+                        Agregar variante
+                    </button>
+                </section>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        Guardar producto
+                    </button>
+
+                    <button type="reset" class="btn btn-secondary">
+                        Limpiar
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Listado de productos -->
+        <section class="tabla-container">
+            <h3>Listado de productos</h3>
+
+            <div class="filtros-container">
+                <div class="form-group">
+                    <label for="buscar-producto">Buscar producto:</label>
+                    <input type="search" id="buscar-producto"
+                           placeholder="Código o nombre">
+                </div>
+
+                <div class="form-group">
+                    <label for="filtro-categoria">Categoría:</label>
+                    <select id="filtro-categoria">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                </div>
+            </div>
+
+            <table class="tabla-datos">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Variantes</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabla-productos">
+                    <!-- Los productos se cargarán desde la API -->
+                </tbody>
+            </table>
+
+            <div class="paginacion" id="paginacion">
+                <button type="button" id="btn-anterior"
+                        class="btn btn-secondary">
+                    Anterior
+                </button>
+
+                <span id="pagina-actual">Página 1</span>
+
+                <button type="button" id="btn-siguiente"
+                        class="btn btn-secondary">
+                    Siguiente
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Sistema de Ventas - Sileliz</p>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/validaciones.js"></script>
+    <script src="js/productos.js"></script>
+    <script src="js/layout.js"></script>
+</body>
+</html>
