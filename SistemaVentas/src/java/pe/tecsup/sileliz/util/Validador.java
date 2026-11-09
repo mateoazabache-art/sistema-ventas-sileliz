@@ -1,4 +1,4 @@
-package pe.tecsup.sileliz.validacion;
+package pe.tecsup.sileliz.util;
 
 import java.math.BigDecimal;
 import java.util.Set;
