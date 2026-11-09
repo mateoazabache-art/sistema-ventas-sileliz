@@ -6,7 +6,7 @@ public class Categoria {
 
     private int idCategoria;
     private String nombre;
-    private boolean activo;
+    private boolean activo = true;
 
     public Categoria() {
     }

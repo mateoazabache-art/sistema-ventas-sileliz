@@ -12,7 +12,7 @@ public class VarianteProducto {
     private String sku;
     private int stock;
     private int stockMinimo;
-    private boolean activo;
+    private boolean activo = true;
 
     public VarianteProducto() {
     }
@@ -94,8 +94,8 @@ public class VarianteProducto {
         this.activo = activo;
     }
 
-    public boolean hayStock() {
-        return stock > 0;
+    public boolean hayStock(int cantidad) {
+        return stock >= cantidad;
     }
 
     public boolean estaBajoMinimo() {

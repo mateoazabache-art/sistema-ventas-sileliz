@@ -11,7 +11,7 @@ public class Producto {
     private String descripcion;
     private Categoria categoria;
     private BigDecimal precioVenta;
-    private boolean activo;
+    private boolean activo = true;
 
     public Producto() {
     }
