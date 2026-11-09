@@ -1,0 +1,97 @@
+---
+title: Gestión de Ventas Sileliz.mas — Modelo entidad-relación (ventas_db)
+---
+erDiagram
+    persona ||--o| cliente : "es"
+    persona ||--o| usuario : "es"
+    categoria ||--o{ producto : "agrupa"
+    producto ||--|{ variante_producto : "tiene"
+    cliente |o--o{ venta : "compra (opcional)"
+    usuario ||--o{ venta : "registra"
+    venta ||--|{ detalle_venta : "contiene"
+    variante_producto ||--o{ detalle_venta : "se vende en"
+    variante_producto ||--o{ movimiento_stock : "kardex"
+    venta |o--o{ movimiento_stock : "origina"
+    usuario ||--o{ movimiento_stock : "realiza"
+
+    persona {
+        int id_persona PK
+        varchar nombres "80, NN"
+        varchar apellidos "80, NN"
+        char dni UK "8 digitos"
+        varchar telefono "9, empieza con 9"
+        varchar correo "120"
+        varchar direccion "150"
+        boolean activo "default true"
+        timestamp fecha_registro "default now()"
+    }
+    usuario {
+        int id_persona PK, FK
+        varchar nombre_usuario UK "30"
+        varchar clave_hash "PBKDF2"
+        varchar rol "ADMINISTRADOR | VENDEDOR"
+        int intentos_fallidos "default 0"
+        timestamp bloqueado_hasta "nulo = libre"
+    }
+    cliente {
+        int id_persona PK, FK
+        varchar observaciones "200"
+    }
+    categoria {
+        int id_categoria PK
+        varchar nombre UK "60"
+        boolean activo
+    }
+    producto {
+        int id_producto PK
+        varchar codigo UK "20"
+        varchar nombre "100"
+        varchar descripcion "250"
+        int id_categoria FK
+        numeric precio_venta "10,2 > 0, con IGV"
+        boolean activo
+    }
+    variante_producto {
+        int id_variante PK
+        int id_producto FK "UK con talla y color"
+        varchar talla "10"
+        varchar color "30"
+        varchar sku UK "30"
+        int stock ">= 0"
+        int stock_minimo "default 2"
+        boolean activo
+    }
+    venta {
+        int id_venta PK
+        char serie "B001, UK con numero"
+        int numero "seq_correlativo"
+        timestamp fecha_hora
+        int id_cliente FK "nulo = consumidor final"
+        int id_usuario FK
+        numeric base_imponible
+        numeric descuento
+        numeric igv
+        numeric total
+        varchar metodo_pago "EFECTIVO | YAPE | PLIN | ..."
+        varchar estado "EMITIDA | ANULADA"
+        varchar motivo_anulacion "obligatorio si ANULADA"
+    }
+    detalle_venta {
+        int id_detalle PK
+        int id_venta FK
+        int id_variante FK
+        varchar descripcion "150"
+        int cantidad "> 0"
+        numeric precio_unitario "> 0"
+        numeric subtotal
+    }
+    movimiento_stock {
+        int id_movimiento PK
+        int id_variante FK
+        int id_venta FK "nulo en INGRESO y AJUSTE"
+        int id_usuario FK
+        varchar tipo "VENTA | ANULACION | INGRESO | AJUSTE"
+        int cantidad "distinta de 0"
+        timestamp fecha_hora
+        varchar motivo "200"
+    }
