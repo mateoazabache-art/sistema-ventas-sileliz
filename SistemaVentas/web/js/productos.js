@@ -4,7 +4,50 @@ document.addEventListener("DOMContentLoaded", () => {
     const formulario = document.getElementById("form-producto");
     const tablaVariantes = document.getElementById("tabla-variantes");
     const botonAgregar = document.getElementById("btn-agregar-variante");
+    const selectorCategoria = document.getElementById("categoria");
+    const filtroCategoria = document.getElementById("filtro-categoria");
 
+    async function cargarCategorias() {
+        try {
+            const respuesta = await fetch("mock/categorias.json");
+
+            if (!respuesta.ok) {
+                throw new Error("No se pudieron cargar las categorías.");
+            }
+
+            const categorias = await respuesta.json();
+            const categoriasActivas = categorias.filter(categoria => categoria.activo);
+
+            selectorCategoria.replaceChildren(
+                new Option("Seleccionar categoría", "")
+            );
+
+            filtroCategoria.replaceChildren(
+                new Option("Todas las categorías", "")
+            );
+
+            categoriasActivas.forEach(categoria => {
+                selectorCategoria.add(
+                    new Option(categoria.nombre, categoria.idCategoria)
+                );
+
+                filtroCategoria.add(
+                    new Option(categoria.nombre, categoria.idCategoria)
+                );
+            });
+
+        } catch (error) {
+            console.error("Error al cargar categorías:", error);
+            selectorCategoria.replaceChildren(
+                new Option("Error al cargar categorías", "")
+            );
+            filtroCategoria.replaceChildren(
+                new Option("Error al cargar categorías", "")
+            );
+        }
+    }
+
+    cargarCategorias();
     formulario.addEventListener("submit", (evento) => {
         evento.preventDefault();
 
