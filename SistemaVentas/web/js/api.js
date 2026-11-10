@@ -1,17 +1,20 @@
 /**
  * Módulo de cliente API para Sistema Ventas Sileliz
- * Maneja peticiones HTTP (GET, POST, etc.) con redirección automática si vence la sesión.
+ * Único lugar donde se llama a fetch (plan 5.6).
+ * - 401 (sin sesión): redirige a login.html, salvo en el propio login.
+ * - Otros errores: lanza Error con el mensaje que manda el servidor {"error": "..."}.
  */
 const API = {
-    // Determina la ruta base del proyecto dinámicamente
+    // Determina la ruta base del proyecto dinámicamente (por ejemplo http://localhost:8080/sileliz/)
     baseUrl: window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf('/', 1) + 1),
 
     /**
-     * Petición HTTP genérica base
+     * Petición HTTP genérica base.
+     * El endpoint se escribe SIN barra inicial: 'api/clientes', no '/api/clientes'.
      */
     async request(endpoint, options = {}) {
-        const url = endpoint.startsWith('http') || endpoint.startsWith('/') 
-            ? endpoint 
+        const url = endpoint.startsWith('http') || endpoint.startsWith('/')
+            ? endpoint
             : `${this.baseUrl}${endpoint}`;
 
         const config = {
@@ -25,16 +28,17 @@ const API = {
         try {
             const response = await fetch(url, config);
 
-            // Redirección al login si la sesión caducó (HTTP 401 o 403)
-            if (response.status === 401 || response.status === 403) {
-                window.location.href = `${this.baseUrl}login.jsp`;
+            // 401 = no hay sesión -> al login (salvo el propio login: ahí se muestra el error)
+            if (response.status === 401 && !endpoint.includes('api/login')) {
+                window.location.href = `${this.baseUrl}login.html`;
                 return null;
             }
 
             const data = await response.json().catch(() => ({}));
 
+            // 400, 403, 404, 409, 423, 500...: el mensaje claro viene del servidor
             if (!response.ok) {
-                throw new Error(data.mensaje || `Error HTTP: ${response.status}`);
+                throw new Error(data.error || `Error HTTP: ${response.status}`);
             }
 
             return data;
@@ -50,10 +54,21 @@ const API = {
     },
 
     async post(endpoint, body) {
-        return await this.request(endpoint, { 
-            method: 'POST', 
-            body: JSON.stringify(body) 
+        return await this.request(endpoint, {
+            method: 'POST',
+            body: JSON.stringify(body)
         });
+    },
+
+    async put(endpoint, body) {
+        return await this.request(endpoint, {
+            method: 'PUT',
+            body: JSON.stringify(body)
+        });
+    },
+
+    async delete(endpoint) {
+        return await this.request(endpoint, { method: 'DELETE' });
     },
 
     // Compatibilidad y verificación
@@ -68,12 +83,9 @@ const API = {
         obtenerSesion: () => API.get('api/sesion')
     },
 
-    // Módulos de Reportes y Estadísticas
-    reportes: {
-        obtenerResumenDia: () => API.get('api/estadisticas/resumen'),
-        obtenerVentasPorRango: (inicio, fin, pagina = 1) => 
-            API.get(`api/reportes/ventas?inicio=${inicio}&fin=${fin}&pagina=${pagina}`),
-        obtenerMasVendidos: () => API.get('api/reportes/mas-vendidos')
+    // Estadísticas del Inicio (Rafael)
+    estadisticas: {
+        hoy: () => API.get('api/estadisticas/hoy')
     }
 };
 
