@@ -61,4 +61,30 @@ public class DescuentoTest {
     public void factory_tipoDesconocido_seRechaza() {
         DescuentoFactory.crear("BITCOIN", null);
     }
+   
+    @Test
+    public void porCantidad_sumaVariasLineas() {
+        List<DetalleVenta> l = new ArrayList<>();
+        l.add(new DetalleVenta(1, "Prenda A", 1, new BigDecimal("50.00")));
+        l.add(new DetalleVenta(2, "Prenda B", 2, new BigDecimal("30.00")));
+        Descuento d = new DescuentoPorCantidad(3, new BigDecimal("10"));
+        // 3 prendas en total, bruto = 50 + 60 = 110.00 -> 10 % = 11.00
+        assertEquals(new BigDecimal("11.00"), d.calcular(l));
+    }
+
+    @Test
+    public void porCantidad_conCantidadesEnormes_noDesborda() {
+        List<DetalleVenta> l = new ArrayList<>();
+        l.add(new DetalleVenta(1, "Prenda A", Integer.MAX_VALUE, new BigDecimal("1.00")));
+        l.add(new DetalleVenta(2, "Prenda B", Integer.MAX_VALUE, new BigDecimal("1.00")));
+        Descuento d = new DescuentoPorCantidad(3, new BigDecimal("10"));
+        // Con un int la suma daria negativo y no descontaria; con long si descuenta
+        assertEquals(new BigDecimal("429496729.40"), d.calcular(l));
+    }
+
+    @Test
+    public void porCantidad_conExactamenteElMinimo_descuenta() {
+        Descuento d = new DescuentoPorCantidad(3, new BigDecimal("10"));
+        assertEquals(new BigDecimal("15.00"), d.calcular(lineas(3, "50.00")));
+    } 
 }

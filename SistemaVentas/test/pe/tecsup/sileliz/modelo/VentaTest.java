@@ -73,4 +73,33 @@ public class VentaTest {
         assertEquals(new BigDecimal("7.63"), v.getIgv());
         assertEquals(v.getTotal(), v.getBaseImponible().add(v.getIgv()));
     }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void agregarDetalle_conNulo_seRechaza() {
+        Venta v = new Venta(null, 1, MetodoPago.EFECTIVO);
+        v.agregarDetalle(null);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void getDetalles_devuelveListaDeSoloLectura() {
+        Venta v = ventaConUnaLinea(1, "50.00");
+        v.getDetalles().clear();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setDetalles_conNulo_seRechaza() {
+        Venta v = new Venta(null, 1, MetodoPago.EFECTIVO);
+        v.setDetalles(null);
+    }
+
+    @Test
+    public void setDetalles_guardaUnaCopiaPropia() {
+        Venta v = new Venta(null, 1, MetodoPago.EFECTIVO);
+        java.util.List<DetalleVenta> externa = new java.util.ArrayList<>();
+        externa.add(new DetalleVenta(1, "Prenda de prueba", 1, new BigDecimal("50.00")));
+        v.setDetalles(externa);
+
+        externa.clear();   // modificar la lista externa no debe afectar a la venta
+        assertEquals(1, v.getDetalles().size());
+    }
 }

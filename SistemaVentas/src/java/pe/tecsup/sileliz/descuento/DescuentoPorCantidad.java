@@ -40,7 +40,8 @@ public class DescuentoPorCantidad implements Descuento {
 
     @Override
     public BigDecimal calcular(List<DetalleVenta> lineas) {
-        int prendas = 0;
+        // long: la suma de muchas cantidades int no puede desbordarse
+        long prendas = 0L;
         BigDecimal bruto = BigDecimal.ZERO;
         for (DetalleVenta d : lineas) {
             prendas += d.getCantidad();
