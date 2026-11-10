@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - Sileliz</title>
+    <link rel="stylesheet" href="lib/bootstrap.min.css">
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <div id="menu-container"></div> <!-- layout.js inyecta el menú aquí -->
+    
+    <div class="container mt-4">
+        <h2>Gestión de Clientes</h2>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <input type="text" id="input-buscar" class="form-control" placeholder="Buscar por nombre o DNI...">
+            </div>
+            <div class="col-md-6 text-end">
+                <button class="btn btn-primary" onclick="abrirModalNuevo()">+ Nuevo Cliente</button>
+            </div>
+        </div>
+
+        <div id="mensaje-alerta" class="alert d-none"></div>
+
+        <table class="table table-striped responsive">
+            <thead>
+                <tr>
+                    <th>DNI</th>
+                    <th>Nombres y Apellidos</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tbody-clientes"></tbody>
+        </table>
+        
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-outline-secondary" id="btn-anterior" onclick="cambiarPagina(-1)">Anterior</button>
+            <span id="span-pagina">Página 1</span>
+            <button class="btn btn-outline-secondary" id="btn-siguiente" onclick="cambiarPagina(1)">Siguiente</button>
+        </div>
+    </div>
+
+    <!-- Formulario Oculto (simplificado para modal) -->
+    <div id="modal-cliente" class="modal" tabindex="-1" style="display:none; background: rgba(0,0,0,0.5); position: fixed; top:0; left:0; width:100%; height:100%;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="form-cliente">
+                    <div class="modal-header">
+                        <h5 id="modal-titulo">Cliente</h5>
+                        <button type="button" class="btn-close" onclick="cerrarModal()"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="id-persona">
+                        <input type="text" id="nombres" class="form-control mb-2" placeholder="Nombres" required>
+                        <input type="text" id="apellidos" class="form-control mb-2" placeholder="Apellidos" required>
+                        <input type="text" id="dni" class="form-control mb-2" placeholder="DNI (8 dígitos)" required>
+                        <input type="text" id="telefono" class="form-control mb-2" placeholder="Teléfono">
+                        <input type="email" id="correo" class="form-control mb-2" placeholder="Correo">
+                        <input type="text" id="direccion" class="form-control mb-2" placeholder="Dirección">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="lib/bootstrap.bundle.min.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/validaciones.js"></script>
+    <script src="js/clientes.js"></script>
+</body>
+</html>
