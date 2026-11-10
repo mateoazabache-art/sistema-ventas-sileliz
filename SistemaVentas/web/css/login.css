@@ -1,0 +1,164 @@
+/* Estilos solo de login.html (los generales están en estilos.css) */
+
+.pagina-login {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+/* Panel dividido: marca a la izquierda, formulario a la derecha */
+.login-contenedor {
+    display: flex;
+    width: 100%;
+    max-width: 820px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.login-marca {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px 32px;
+    background: #0056b3;
+    color: #fff;
+}
+
+.login-logo {
+    margin: 0;
+    font-size: 2.4rem;
+    font-weight: bold;
+}
+
+.login-logo span {
+    opacity: 0.75;
+}
+
+.login-lema {
+    margin: 8px 0 24px;
+    font-size: 1.1rem;
+}
+
+.login-sistema {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
+.login-formulario {
+    flex: 1;
+    padding: 40px 32px;
+}
+
+.login-formulario h1 {
+    margin: 0 0 24px;
+    font-size: 1.5rem;
+}
+
+.campo {
+    margin-bottom: 16px;
+}
+
+.campo label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.campo input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+}
+
+.campo input:focus {
+    outline: 2px solid #0056b3;
+    outline-offset: 1px;
+}
+
+.campo-invalido {
+    border-color: #c62828 !important;
+}
+
+.clave-con-boton {
+    display: flex;
+    gap: 8px;
+}
+
+.clave-con-boton button {
+    flex-shrink: 0;
+    padding: 0 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    background: #f4f6f9;
+    cursor: pointer;
+}
+
+.error-campo,
+.mensaje-error {
+    color: #c62828;
+}
+
+.error-campo {
+    display: block;
+    min-height: 1.2em;
+    margin-top: 4px;
+    font-size: 0.85rem;
+}
+
+.mensaje-error {
+    min-height: 1.4em;
+    margin: 0 0 12px;
+}
+
+.btn-ingresar {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background: #0056b3;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-ingresar:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+/* Celular: un panel encima del otro */
+@media (max-width: 640px) {
+    .login-contenedor {
+        flex-direction: column;
+    }
+
+    .login-marca {
+        padding: 24px;
+        text-align: center;
+    }
+
+    .login-logo {
+        font-size: 1.8rem;
+    }
+
+    .login-lema {
+        margin-bottom: 8px;
+    }
+
+    .login-formulario {
+        padding: 24px;
+    }
+}
