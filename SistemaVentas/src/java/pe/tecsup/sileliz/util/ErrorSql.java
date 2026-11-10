@@ -42,7 +42,10 @@ public final class ErrorSql {
             Map.entry("variante_producto_sku_key", "Ya existe una variante con ese SKU."),
             Map.entry("uq_variante_producto_talla_color", "Ese producto ya tiene esa talla y color."),
             Map.entry("variante_producto_stock_check", "El stock no puede quedar negativo."),
-            Map.entry("ck_venta_motivo_anulacion", "Para anular una venta indique el motivo.")
+            Map.entry("ck_venta_motivo_anulacion", "Para anular una venta indique el motivo."),
+            // Triggers de 03_vistas_triggers.sql (ultima barrera; la aplicacion no deberia llegar aqui)
+            Map.entry("trg_venta_protegida", "Una venta no se elimina ni se modifica: solo se puede anular."),
+            Map.entry("trg_detalle_venta_inmutable", "El detalle de una venta emitida no se puede modificar.")
     );
 
     private ErrorSql() {
