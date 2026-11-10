@@ -42,15 +42,27 @@ public class MovimientoStock {
         this.fechaHora = LocalDateTime.now();
     }
 
-    /** Movimiento por una venta: el stock baja, por eso la cantidad es negativa. */
+    /**
+     * Movimiento por una venta: el stock baja, por eso la cantidad es negativa.
+     * La cantidad vendida debe ser mayor que 0 (asi tambien se evita negar Integer.MIN_VALUE).
+     */
     public static MovimientoStock deVenta(int idVenta, int idVariante, int cantidadVendida, int idUsuario) {
+        if (cantidadVendida <= 0) {
+            throw new IllegalArgumentException("La cantidad vendida debe ser mayor que 0.");
+        }
         return new MovimientoStock(idVariante, idVenta, idUsuario,
                 Tipo.VENTA, -cantidadVendida, "Venta");
     }
 
-    /** Movimiento por una anulacion: el stock sube, por eso la cantidad es positiva. */
+    /**
+     * Movimiento por una anulacion: el stock sube, por eso la cantidad es positiva.
+     * La cantidad repuesta debe ser mayor que 0.
+     */
     public static MovimientoStock deAnulacion(int idVenta, int idVariante, int cantidadRepuesta,
                                               int idUsuario, String motivo) {
+        if (cantidadRepuesta <= 0) {
+            throw new IllegalArgumentException("La cantidad repuesta debe ser mayor que 0.");
+        }
         return new MovimientoStock(idVariante, idVenta, idUsuario,
                 Tipo.ANULACION, cantidadRepuesta, motivo);
     }

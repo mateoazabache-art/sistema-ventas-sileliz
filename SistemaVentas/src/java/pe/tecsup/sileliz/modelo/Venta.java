@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -44,8 +45,14 @@ public class Venta {
         this.fechaHora = LocalDateTime.now();
     }
 
-    /** Agrega una linea. Si la variante ya esta en el carrito, suma la cantidad. */
+    /**
+     * Agrega una linea. Si la variante ya esta en el carrito, suma la cantidad.
+     * Rechaza un detalle nulo.
+     */
     public void agregarDetalle(DetalleVenta nuevo) {
+        if (nuevo == null) {
+            throw new IllegalArgumentException("El detalle de venta no puede ser nulo.");
+        }
         for (DetalleVenta d : detalles) {
             if (d.getIdVariante() == nuevo.getIdVariante()) {
                 d.setCantidad(d.getCantidad() + nuevo.getCantidad());
@@ -160,12 +167,21 @@ public class Venta {
         this.idUsuario = idUsuario;
     }
 
+    /** Vista de solo lectura: para agregar lineas se usa agregarDetalle. */
     public List<DetalleVenta> getDetalles() {
-        return detalles;
+        return Collections.unmodifiableList(detalles);
     }
 
+    /** Reemplaza los detalles por una copia propia. Rechaza una lista nula o con nulos. */
     public void setDetalles(List<DetalleVenta> detalles) {
-        this.detalles = detalles;
+        if (detalles == null) {
+            throw new IllegalArgumentException("La lista de detalles no puede ser nula.");
+        }
+        List<DetalleVenta> copia = new ArrayList<>(detalles);
+        if (copia.contains(null)) {
+            throw new IllegalArgumentException("La lista de detalles no puede contener elementos nulos.");
+        }
+        this.detalles = copia;
     }
 
     public BigDecimal getBaseImponible() {
