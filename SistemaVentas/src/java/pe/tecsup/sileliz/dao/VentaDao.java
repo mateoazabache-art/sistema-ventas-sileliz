@@ -4,10 +4,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import pe.tecsup.sileliz.modelo.DetalleVenta;
+import pe.tecsup.sileliz.modelo.EstadoVenta;
+import pe.tecsup.sileliz.modelo.MetodoPago;
 import pe.tecsup.sileliz.modelo.Venta;
+import pe.tecsup.sileliz.modelo.VentaResumen;
+import pe.tecsup.sileliz.util.Conexion;
 import pe.tecsup.sileliz.util.ErrorSql;
+import pe.tecsup.sileliz.util.Paginado;
 
 /**
  * Acceso a datos de ventas (tablas venta y detalle_venta).
@@ -69,7 +78,7 @@ public class VentaDao {
             throw ErrorSql.traducir(e);
         }
     }
-    
+
     /**
      * Pasa una venta de EMITIDA a ANULADA con su motivo (RN-08).
      * Devuelve false si la venta no existe o ya estaba anulada.
@@ -84,5 +93,83 @@ public class VentaDao {
         } catch (SQLException e) {
             throw ErrorSql.traducir(e);
         }
+    }
+
+    /**
+     * Una pagina del historial, la mas reciente primero.
+     * desde y hasta (ambos incluidos) pueden ser nulos. Si idUsuario no es nulo,
+     * solo se listan las ventas de ese usuario (el vendedor ve las suyas).
+     */
+    public Paginado<VentaResumen> listarPaginado(int pagina, int tam, LocalDate desde,
+                                                 LocalDate hasta, Integer idUsuario) {
+        int t = Paginado.normalizarTam(tam);
+        int p = Math.max(pagina, 1);
+
+        StringBuilder filtro = new StringBuilder(" WHERE 1 = 1");
+        List<Object> params = new ArrayList<>();
+        if (desde != null) {
+            filtro.append(" AND v.fecha_hora >= ?");
+            params.add(Timestamp.valueOf(desde.atStartOfDay()));
+        }
+        if (hasta != null) {
+            filtro.append(" AND v.fecha_hora < ?");
+            params.add(Timestamp.valueOf(hasta.plusDays(1).atStartOfDay()));
+        }
+        if (idUsuario != null) {
+            filtro.append(" AND v.id_usuario = ?");
+            params.add(idUsuario);
+        }
+
+        String sql = "SELECT v.id_venta, v.serie, v.numero, v.fecha_hora, v.total, v.metodo_pago, v.estado, "
+                + "COALESCE(pc.nombres || ' ' || pc.apellidos, 'Varios') AS cliente, "
+                + "pu.nombres || ' ' || pu.apellidos AS vendedor "
+                + "FROM venta v "
+                + "LEFT JOIN persona pc ON pc.id_persona = v.id_cliente "
+                + "JOIN persona pu ON pu.id_persona = v.id_usuario"
+                + filtro
+                + " ORDER BY v.fecha_hora DESC, v.id_venta DESC LIMIT ? OFFSET ?";
+        String sqlTotal = "SELECT count(*) FROM venta v" + filtro;
+
+        List<VentaResumen> lista = new ArrayList<>();
+        long total;
+        try (Connection cn = Conexion.getConnection()) {
+            try (PreparedStatement ps = cn.prepareStatement(sqlTotal)) {
+                ponerParametros(ps, params);
+                try (ResultSet rs = ps.executeQuery()) {
+                    rs.next();
+                    total = rs.getLong(1);
+                }
+            }
+            try (PreparedStatement ps = cn.prepareStatement(sql)) {
+                int i = ponerParametros(ps, params);
+                ps.setInt(i++, t);
+                ps.setInt(i, Paginado.offset(p, t));
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        lista.add(new VentaResumen(
+                                rs.getInt("id_venta"),
+                                String.format("%s-%06d", rs.getString("serie").trim(), rs.getInt("numero")),
+                                rs.getTimestamp("fecha_hora").toLocalDateTime(),
+                                rs.getString("cliente"),
+                                rs.getString("vendedor"),
+                                rs.getBigDecimal("total"),
+                                MetodoPago.valueOf(rs.getString("metodo_pago")),
+                                EstadoVenta.valueOf(rs.getString("estado"))));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw ErrorSql.traducir(e);
+        }
+        return Paginado.de(lista, p, t, total);
+    }
+
+    /** Pone los parametros en orden y devuelve el siguiente indice libre. */
+    private int ponerParametros(PreparedStatement ps, List<Object> params) throws SQLException {
+        int i = 1;
+        for (Object o : params) {
+            ps.setObject(i++, o);
+        }
+        return i;
     }
 }
