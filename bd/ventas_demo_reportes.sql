@@ -11,6 +11,10 @@
 -- Igual que una venta real: descuenta el stock y deja el movimiento en
 -- movimiento_stock. Los importes siguen la RN-01 (precio con IGV incluido).
 --
+-- No estorba a las pruebas JUnit: usa solo variantes con stock de sobra,
+-- no toca las que usan las pruebas (P-001-XL-BLA, P-003-XL-CEL) y ninguna
+-- baja al stock minimo (v_stock_bajo sigue en 13).
+--
 -- PARA BORRARLAS: las ventas no se eliminan (trg_venta_protegida).
 -- Se limpia volviendo a ejecutar 02_datos_prueba.sql (usa TRUNCATE).
 -- =====================================================================
@@ -95,20 +99,20 @@ END;
 $$;
 
 -- Ventas (fecha, usuario, DNI del cliente, pago, % descuento, variantes, cantidades)
-SELECT pg_temp.vender(current_date - 45 + time '11:20', 'vendedor', '70000002', 'EFECTIVO',      0, ARRAY[4],        ARRAY[1]);
-SELECT pg_temp.vender(current_date - 40 + time '17:05', 'admin',    NULL,       'YAPE',          0, ARRAY[15, 22],   ARRAY[1, 1]);
-SELECT pg_temp.vender(current_date - 10 + time '10:15', 'vendedor', '70000001', 'EFECTIVO',      0, ARRAY[1],        ARRAY[2]);
-SELECT pg_temp.vender(current_date -  9 + time '12:40', 'vendedor', NULL,       'YAPE',          0, ARRAY[9, 16],    ARRAY[1, 1]);
-SELECT pg_temp.vender(current_date -  8 + time '16:30', 'admin',    '70000003', 'TARJETA',      10, ARRAY[1, 25, 31],ARRAY[1, 1, 1]);
-SELECT pg_temp.vender(current_date -  7 + time '11:05', 'vendedor', '70000005', 'PLIN',          0, ARRAY[10],       ARRAY[1]);
-SELECT pg_temp.vender(current_date -  6 + time '18:20', 'vendedor', NULL,       'EFECTIVO',      0, ARRAY[21],       ARRAY[2]);
-SELECT pg_temp.vender(current_date -  4 + time '10:50', 'admin',    '70000007', 'TRANSFERENCIA', 0, ARRAY[34, 40],   ARRAY[1, 1]);
-SELECT pg_temp.vender(current_date -  3 + time '15:10', 'vendedor', '70000008', 'YAPE',         10, ARRAY[1, 9],     ARRAY[2, 1]);
-SELECT pg_temp.vender(current_date -  2 + time '13:25', 'vendedor', NULL,       'EFECTIVO',      0, ARRAY[43],       ARRAY[1]);
-SELECT pg_temp.vender(current_date -  1 + time '17:45', 'admin',    '70000004', 'TARJETA',       0, ARRAY[48, 54],   ARRAY[1, 1]);
-SELECT pg_temp.vender(current_date      + time '09:10', 'vendedor', '70000006', 'YAPE',          0, ARRAY[9],        ARRAY[1]);
-SELECT pg_temp.vender(current_date      + time '09:40', 'vendedor', NULL,       'EFECTIVO',      0, ARRAY[55],       ARRAY[1]);
-SELECT pg_temp.vender(current_date      + time '10:05', 'admin',    '70000001', 'PLIN',          0, ARRAY[28, 58],   ARRAY[1, 1]);
+SELECT pg_temp.vender(current_date - 45 + time '11:20', 'vendedor', '70000002', 'EFECTIVO',      0, ARRAY[4],          ARRAY[1]);
+SELECT pg_temp.vender(current_date - 40 + time '17:05', 'admin',    NULL,       'YAPE',          0, ARRAY[15, 22],     ARRAY[1, 1]);
+SELECT pg_temp.vender(current_date - 10 + time '10:15', 'vendedor', '70000001', 'EFECTIVO',      0, ARRAY[11],         ARRAY[2]);
+SELECT pg_temp.vender(current_date -  9 + time '12:40', 'vendedor', NULL,       'YAPE',          0, ARRAY[9, 16],      ARRAY[1, 1]);
+SELECT pg_temp.vender(current_date -  8 + time '16:30', 'admin',    '70000003', 'TARJETA',      10, ARRAY[11, 26, 32], ARRAY[1, 1, 1]);
+SELECT pg_temp.vender(current_date -  7 + time '11:05', 'vendedor', '70000005', 'PLIN',          0, ARRAY[10],         ARRAY[1]);
+SELECT pg_temp.vender(current_date -  6 + time '18:20', 'vendedor', NULL,       'EFECTIVO',      0, ARRAY[21],         ARRAY[2]);
+SELECT pg_temp.vender(current_date -  4 + time '10:50', 'admin',    '70000007', 'TRANSFERENCIA', 0, ARRAY[34, 40],     ARRAY[1, 1]);
+SELECT pg_temp.vender(current_date -  3 + time '15:10', 'vendedor', '70000008', 'YAPE',         10, ARRAY[11, 9],      ARRAY[2, 1]);
+SELECT pg_temp.vender(current_date -  2 + time '13:25', 'vendedor', NULL,       'EFECTIVO',      0, ARRAY[43],         ARRAY[1]);
+SELECT pg_temp.vender(current_date -  1 + time '17:45', 'admin',    '70000004', 'TARJETA',       0, ARRAY[48, 54],     ARRAY[1, 1]);
+SELECT pg_temp.vender(current_date      + time '09:10', 'vendedor', '70000006', 'YAPE',          0, ARRAY[9],          ARRAY[1]);
+SELECT pg_temp.vender(current_date      + time '09:40', 'vendedor', NULL,       'EFECTIVO',      0, ARRAY[55],         ARRAY[1]);
+SELECT pg_temp.vender(current_date      + time '10:05', 'admin',    '70000001', 'PLIN',          0, ARRAY[28, 60],     ARRAY[1, 1]);
 
 -- Anular la venta de hace 6 dias (RN-08): cambia el estado, devuelve el stock
 -- y deja el movimiento ANULACION.
