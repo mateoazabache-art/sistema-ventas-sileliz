@@ -1,0 +1,171 @@
+/* Estilos solo de reportes.html (no cambia estilos.css, que es comun). */
+
+.pagina-reportes {
+    max-width: 1100px;
+    margin-bottom: 90px;            /* espacio para el pie fijo */
+}
+
+.pagina-reportes h3 {
+    margin: 28px 0 10px;
+    font-size: 1.1rem;
+}
+
+/* Filtro de fechas */
+.filtro {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.filtro .campo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.filtro label {
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.filtro input[type="date"] {
+    padding: 7px 8px;
+    border: 1px solid #b8c0cc;
+    border-radius: 6px;
+    font: inherit;
+}
+
+.pagina-reportes button {
+    padding: 8px 14px;
+    border: 1px solid #0056b3;
+    border-radius: 6px;
+    background: #0056b3;
+    color: white;
+    font: inherit;
+    cursor: pointer;
+}
+
+.pagina-reportes button.secundario {
+    background: white;
+    color: #0056b3;
+}
+
+.pagina-reportes button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagina-reportes button:focus-visible,
+.filtro input:focus-visible {
+    outline: 3px solid #ffbf47;
+    outline-offset: 1px;
+}
+
+/* Mensaje de error del servidor o de validacion */
+.mensaje {
+    margin: 10px 0;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background: #fdecea;
+    color: #8a1c13;
+    border: 1px solid #f5c2bd;
+}
+
+/* Total acumulado */
+.tarjetas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.tarjeta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px;
+    border: 1px solid #dfe3ea;
+    border-left: 5px solid #0056b3;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+
+.tarjeta-titulo {
+    font-size: 0.85rem;
+    color: #55606e;
+}
+
+.tarjeta-valor {
+    font-size: 1.6rem;
+    font-weight: bold;
+}
+
+.tarjeta-valor.chico {
+    font-size: 1.05rem;
+}
+
+.nota {
+    margin: 8px 0 0;
+    font-size: 0.85rem;
+    color: #55606e;
+}
+
+/* Tablas */
+.pagina-reportes .tabla-container {
+    overflow-x: auto;
+}
+
+.pagina-reportes .tabla-datos {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+}
+
+.pagina-reportes .tabla-datos th,
+.pagina-reportes .tabla-datos td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e3e7ee;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.pagina-reportes .tabla-datos th {
+    background: #eef2f7;
+}
+
+.pagina-reportes .tabla-datos .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.pagina-reportes .tabla-datos td.vacio {
+    text-align: center;
+    color: #55606e;
+    padding: 18px;
+}
+
+/* Venta anulada: en rojo y tachado el importe */
+.fila-anulada td {
+    color: #b3261e;
+}
+
+.fila-anulada td.num {
+    text-decoration: line-through;
+}
+
+/* Paginacion */
+.paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin-top: 12px;
+}
+
+.dos-columnas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+}
