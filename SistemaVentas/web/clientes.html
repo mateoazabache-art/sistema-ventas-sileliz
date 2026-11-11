@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - Sileliz</title>
+    <link href="lib/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="css/estilos.css" rel="stylesheet">
+</head>
+<body>
+    <div id="menu-container"></div> <!-- Aquí layout.js inyecta el menú -->
+
+    <div class="container mt-4">
+        <h2>Gestión de Clientes</h2>
+        <div id="mensaje-error" class="alert alert-danger d-none"></div>
+        
+        <!-- Buscador -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <input type="text" id="txtBuscar" class="form-control" placeholder="Buscar por nombre o DNI...">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary" onclick="buscarClientes()">Buscar</button>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-success" onclick="mostrarFormulario()">+ Nuevo Cliente</button>
+            </div>
+        </div>
+
+        <!-- Tabla de Clientes -->
+        <div class="table-responsive">
+            <table class="table table-striped" id="tablaClientes">
+                <thead>
+                    <tr>
+                        <th>DNI</th>
+                        <th>Nombres</th>
+                        <th>Teléfono</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
+        <!-- Paginación -->
+        <div id="paginacion" class="d-flex justify-content-center mt-3"></div>
+    </div>
+
+    <script src="lib/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/clientes.js"></script>
+</body>
+</html>
