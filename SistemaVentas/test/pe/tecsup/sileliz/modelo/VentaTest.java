@@ -102,4 +102,16 @@ public class VentaTest {
         externa.clear();   // modificar la lista externa no debe afectar a la venta
         assertEquals(1, v.getDetalles().size());
     }
+    
+    @Test
+    public void agregarDetalle_conSumaQueDesborda_seRechazaYNoCambiaLaCantidad() {
+        Venta v = new Venta(null, 1, MetodoPago.EFECTIVO);
+        v.agregarDetalle(new DetalleVenta(1, "Prenda de prueba", Integer.MAX_VALUE, new BigDecimal("1.00")));
+        try {
+            v.agregarDetalle(new DetalleVenta(1, "Prenda de prueba", 1, new BigDecimal("1.00")));
+            org.junit.Assert.fail("Debio lanzar IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertEquals(Integer.MAX_VALUE, v.getDetalles().get(0).getCantidad());
+        }
+    }
 }
