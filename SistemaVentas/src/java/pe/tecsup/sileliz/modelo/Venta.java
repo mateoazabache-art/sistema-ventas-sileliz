@@ -47,7 +47,7 @@ public class Venta {
 
     /**
      * Agrega una linea. Si la variante ya esta en el carrito, suma la cantidad.
-     * Rechaza un detalle nulo.
+     * Rechaza un detalle nulo y una suma que supere el maximo de un entero.
      */
     public void agregarDetalle(DetalleVenta nuevo) {
         if (nuevo == null) {
@@ -55,7 +55,11 @@ public class Venta {
         }
         for (DetalleVenta d : detalles) {
             if (d.getIdVariante() == nuevo.getIdVariante()) {
-                d.setCantidad(d.getCantidad() + nuevo.getCantidad());
+                long suma = (long) d.getCantidad() + nuevo.getCantidad();
+                if (suma > Integer.MAX_VALUE) {
+                    throw new IllegalArgumentException("La cantidad total de la variante es demasiado grande.");
+                }
+                d.setCantidad((int) suma);
                 return;
             }
         }
