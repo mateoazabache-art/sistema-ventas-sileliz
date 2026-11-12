@@ -2,53 +2,129 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clientes - Sileliz</title>
-    <link href="lib/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link href="css/estilos.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clientes - Gestión de Ventas Sileliz</title>
+    <link rel="icon" href="img/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="img/favicon-192.png" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
-    <div id="menu-container"></div> <!-- Aquí layout.js inyecta el menú -->
+    <header>
+        <h1>Sistema de Ventas - Sileliz</h1>
+        <nav>
+            <ul>
+                <!-- layout.js arma el menú según el rol -->
+            </ul>
+        </nav>
+    </header>
 
-    <div class="container mt-4">
+    <main id="contenido-principal">
         <h2>Gestión de Clientes</h2>
-        <div id="mensaje-error" class="alert alert-danger d-none"></div>
-        
-        <!-- Buscador -->
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <input type="text" id="txtBuscar" class="form-control" placeholder="Buscar por nombre o DNI...">
-            </div>
-            <div class="col-md-2">
-                <button class="btn btn-primary" onclick="buscarClientes()">Buscar</button>
-            </div>
-            <div class="col-md-4 text-end">
-                <button class="btn btn-success" onclick="mostrarFormulario()">+ Nuevo Cliente</button>
-            </div>
-        </div>
 
-        <!-- Tabla de Clientes -->
+        <!-- Mensajes de éxito y de error -->
+        <div id="mensaje-ok" class="alert alert-success d-none" role="status"></div>
+        <div id="mensaje-error" class="alert alert-danger d-none" role="alert"></div>
+
+        <!-- Buscador -->
+        <form id="formBuscar" class="row g-2 mb-3">
+            <div class="col-12 col-md-6">
+                <label for="txtBuscar" class="visually-hidden">Buscar por nombre o DNI</label>
+                <input type="text" id="txtBuscar" class="form-control" maxlength="80"
+                       placeholder="Buscar por nombre o DNI...">
+            </div>
+            <div class="col-6 col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Buscar</button>
+            </div>
+            <div class="col-6 col-md-4 text-end">
+                <button type="button" id="btnNuevo" class="btn btn-success">+ Nuevo cliente</button>
+            </div>
+        </form>
+
+        <!-- Formulario de alta y edición (oculto hasta que se pide) -->
+        <section id="seccionFormulario" class="card mb-4 d-none">
+            <div class="card-body">
+                <h3 id="tituloFormulario" class="h5 card-title">Nuevo cliente</h3>
+                <div id="mensaje-formulario" class="alert alert-danger d-none" role="alert"></div>
+
+                <form id="formCliente" class="row g-3" novalidate>
+                    <div class="col-12 col-md-6">
+                        <label for="nombres" class="form-label">Nombres *</label>
+                        <input type="text" id="nombres" class="form-control" maxlength="80" autocomplete="off">
+                        <div class="invalid-feedback" id="error-nombres"></div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label for="apellidos" class="form-label">Apellidos *</label>
+                        <input type="text" id="apellidos" class="form-control" maxlength="80" autocomplete="off">
+                        <div class="invalid-feedback" id="error-apellidos"></div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label for="dni" class="form-label">DNI *</label>
+                        <input type="text" id="dni" class="form-control" maxlength="8" inputmode="numeric" autocomplete="off">
+                        <div class="invalid-feedback" id="error-dni"></div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label for="telefono" class="form-label">Celular</label>
+                        <input type="text" id="telefono" class="form-control" maxlength="9" inputmode="numeric" autocomplete="off">
+                        <div class="invalid-feedback" id="error-telefono"></div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label for="correo" class="form-label">Correo</label>
+                        <input type="email" id="correo" class="form-control" maxlength="120" autocomplete="off">
+                        <div class="invalid-feedback" id="error-correo"></div>
+                    </div>
+                    <div class="col-12">
+                        <label for="direccion" class="form-label">Dirección</label>
+                        <input type="text" id="direccion" class="form-control" maxlength="150" autocomplete="off">
+                        <div class="invalid-feedback" id="error-direccion"></div>
+                    </div>
+                    <div class="col-12">
+                        <label for="observaciones" class="form-label">Observaciones</label>
+                        <input type="text" id="observaciones" class="form-control" maxlength="200" autocomplete="off">
+                        <div class="invalid-feedback" id="error-observaciones"></div>
+                    </div>
+                    <div class="col-12 d-flex gap-2">
+                        <button type="submit" id="btnGuardar" class="btn btn-primary">Guardar</button>
+                        <button type="button" id="btnCancelar" class="btn btn-outline-secondary">Cancelar</button>
+                    </div>
+                    <p class="text-muted small mb-0">Los campos con * son obligatorios.</p>
+                </form>
+            </div>
+        </section>
+
+        <!-- Tabla de clientes -->
         <div class="table-responsive">
-            <table class="table table-striped" id="tablaClientes">
+            <table class="table table-striped align-middle" id="tablaClientes">
                 <thead>
                     <tr>
                         <th>DNI</th>
-                        <th>Nombres</th>
-                        <th>Teléfono</th>
+                        <th>Nombre</th>
+                        <th>Celular</th>
+                        <th>Correo</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
             </table>
         </div>
-        
-        <!-- Paginación -->
-        <div id="paginacion" class="d-flex justify-content-center mt-3"></div>
-    </div>
 
+        <!-- Paginación -->
+        <nav aria-label="Páginas de clientes">
+            <ul id="paginacion" class="pagination justify-content-center flex-wrap mt-3 mb-1"></ul>
+        </nav>
+        <p id="infoPaginacion" class="text-center text-muted small"></p>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Sistema Ventas - Sileliz</p>
+    </footer>
+
+    <!-- Scripts del proyecto -->
     <script src="lib/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="js/api.js"></script>
     <script src="js/layout.js"></script>
+    <script src="js/validaciones.js"></script>
     <script src="js/clientes.js"></script>
 </body>
 </html>

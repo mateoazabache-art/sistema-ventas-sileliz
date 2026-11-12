@@ -112,6 +112,11 @@ public class SesionFilter implements Filter {
         if (empiezaCon(ruta, ADMIN_ESCRIBE) && ESCRITURA.contains(metodo)) {
             return true;
         }
+        // Desactivar un cliente: solo el administrador (plan 2.1).
+        // El vendedor si puede crear y editar clientes (POST y PUT).
+        if (empiezaCon(ruta, List.of("/api/clientes")) && "DELETE".equals(metodo)) {
+            return true;
+        }
         // Anular una venta: solo el administrador (RN-08)
         return ruta.startsWith("/api/ventas/") && ruta.endsWith("/anular");
     }

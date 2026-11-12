@@ -1,0 +1,174 @@
+---
+title: Gestión de Ventas Sileliz.mas — Diagrama de clases del modelo (código real de develop, 12 nov 2026)
+---
+classDiagram
+    direction TB
+
+    class Persona {
+        <<abstract>>
+        -int idPersona
+        -String nombres
+        -String apellidos
+        -String dni
+        -String telefono
+        -String correo
+        -String direccion
+        -boolean activo
+        -LocalDateTime fechaRegistro
+        +getTipo()* String
+        +nombreCompleto() String
+        +validar() void
+    }
+    class Cliente {
+        -String observaciones
+        +getTipo() String
+    }
+    class Usuario {
+        +int MAX_INTENTOS = 5$
+        +int MINUTOS_BLOQUEO = 15$
+        -String nombreUsuario
+        -String claveHash
+        -Rol rol
+        -int intentosFallidos
+        -LocalDateTime bloqueadoHasta
+        +getTipo() String
+        +estaBloqueado() boolean
+        +esAdministrador() boolean
+        +registrarIntentoFallido() boolean
+        +reiniciarIntentos() void
+    }
+    class Rol {
+        <<enumeration>>
+        ADMINISTRADOR
+        VENDEDOR
+        -String etiqueta
+    }
+    Persona <|-- Cliente
+    Persona <|-- Usuario
+    Usuario --> Rol
+
+    class Categoria {
+        -int idCategoria
+        -String nombre
+        -boolean activo
+    }
+    class Producto {
+        -int idProducto
+        -String codigo
+        -String nombre
+        -String descripcion
+        -Categoria categoria
+        -BigDecimal precioVenta
+        -boolean activo
+    }
+    class VarianteProducto {
+        -int idVariante
+        -Producto producto
+        -String talla
+        -String color
+        -String sku
+        -int stock
+        -int stockMinimo
+        -boolean activo
+        +hayStock(int cantidad) boolean
+        +estaBajoMinimo() boolean
+    }
+    Categoria "1" <-- "*" Producto : agrupa
+    Producto "1" <-- "*" VarianteProducto : tiene
+
+    class Venta {
+        +BigDecimal IGV_FACTOR = 1.18$
+        -int idVenta
+        -String serie
+        -int numero
+        -LocalDateTime fechaHora
+        -Integer idCliente
+        -int idUsuario
+        -List~DetalleVenta~ detalles
+        -BigDecimal baseImponible
+        -BigDecimal descuento
+        -BigDecimal igv
+        -BigDecimal total
+        -MetodoPago metodoPago
+        -EstadoVenta estado
+        -String motivoAnulacion
+        +agregarDetalle(DetalleVenta d) void
+        +totalBruto() BigDecimal
+        +calcularTotales(Descuento d) void
+        +anular(String motivo) void
+        +getDetallesOrdenadosPorVariante() List
+        +serieNumero() String
+    }
+    class DetalleVenta {
+        -int idDetalle
+        -int idVariante
+        -String descripcion
+        -int cantidad
+        -BigDecimal precioUnitario
+        +subtotal() BigDecimal
+    }
+    class MovimientoStock {
+        -int idMovimiento
+        -int idVariante
+        -Integer idVenta
+        -int idUsuario
+        -Tipo tipo
+        -int cantidad
+        -LocalDateTime fechaHora
+        -String motivo
+        +deVenta(idVenta, idVariante, cantidad, idUsuario)$ MovimientoStock
+        +deAnulacion(idVenta, idVariante, cantidad, idUsuario, motivo)$ MovimientoStock
+    }
+    class EstadoVenta {
+        <<enumeration>>
+        EMITIDA
+        ANULADA
+    }
+    class MetodoPago {
+        <<enumeration>>
+        EFECTIVO
+        YAPE
+        PLIN
+        TARJETA
+        TRANSFERENCIA
+    }
+    class VentaSolicitud {
+        -Integer idCliente
+        -MetodoPago metodoPago
+        -String tipoDescuento
+        -BigDecimal valorDescuento
+        -List~Linea~ lineas
+    }
+    Venta "1" *-- "1..*" DetalleVenta : contiene
+    Venta --> EstadoVenta
+    Venta --> MetodoPago
+    Venta ..> Descuento : usa en calcularTotales
+    Venta ..> Cliente : idCliente (0..1)
+    Venta ..> Usuario : idUsuario
+    DetalleVenta ..> VarianteProducto : idVariante
+    MovimientoStock ..> VarianteProducto : idVariante
+    VentaSolicitud --> MetodoPago
+
+    class Descuento {
+        <<interface>>
+        +calcular(List~DetalleVenta~ lineas) BigDecimal
+        +descripcion() String
+    }
+    class SinDescuento
+    class DescuentoPorcentaje {
+        -BigDecimal porcentaje
+    }
+    class DescuentoPorCantidad {
+        -int minimo
+        -BigDecimal porcentaje
+    }
+    class DescuentoFactory {
+        <<utility>>
+        +int MINIMO_POR_CANTIDAD = 3$
+        +BigDecimal PORCENTAJE_POR_CANTIDAD = 10$
+        +crear(String tipo, BigDecimal valor)$ Descuento
+    }
+    Descuento <|.. SinDescuento
+    Descuento <|.. DescuentoPorcentaje
+    Descuento <|.. DescuentoPorCantidad
+    DescuentoFactory ..> Descuento : crea

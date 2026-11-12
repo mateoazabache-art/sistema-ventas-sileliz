@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - Gestión de Ventas Sileliz</title>
+    <link rel="icon" href="img/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="img/favicon-192.png" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/reportes.css">
+</head>
+<body>
+    <header>
+        <h1>Sistema de Ventas - Sileliz</h1>
+        <nav>
+            <ul>
+                <!-- layout.js arma el menú según el rol -->
+            </ul>
+        </nav>
+    </header>
+
+    <main id="contenido-principal" class="pagina-reportes">
+        <h2>Reportes de ventas</h2>
+
+        <!-- Filtro de fechas -->
+        <form id="form-filtro" class="filtro" novalidate>
+            <div class="campo">
+                <label for="desde">Desde</label>
+                <input type="date" id="desde" name="desde" required>
+            </div>
+            <div class="campo">
+                <label for="hasta">Hasta</label>
+                <input type="date" id="hasta" name="hasta" required>
+            </div>
+            <button type="submit" id="btn-consultar">Consultar</button>
+            <button type="button" id="btn-mes" class="secundario">Este mes</button>
+            <button type="button" id="btn-hoy" class="secundario">Hoy</button>
+        </form>
+        <p id="mensaje" class="mensaje" role="alert" hidden></p>
+
+        <!-- Total acumulado -->
+        <section class="tarjetas" aria-label="Total acumulado del rango">
+            <div class="tarjeta">
+                <span class="tarjeta-titulo">Ventas emitidas</span>
+                <span class="tarjeta-valor" id="total-ventas">0</span>
+            </div>
+            <div class="tarjeta">
+                <span class="tarjeta-titulo">Total vendido</span>
+                <span class="tarjeta-valor" id="total-monto">S/ 0.00</span>
+            </div>
+            <div class="tarjeta">
+                <span class="tarjeta-titulo">Rango consultado</span>
+                <span class="tarjeta-valor chico" id="total-rango">-</span>
+            </div>
+        </section>
+        <p class="nota">El total acumulado no cuenta las ventas anuladas.</p>
+
+        <!-- Ventas del rango -->
+        <section>
+            <h3>Ventas del rango</h3>
+            <div class="tabla-container">
+                <table class="tabla-datos">
+                    <thead>
+                        <tr>
+                            <th>Comprobante</th>
+                            <th>Fecha y hora</th>
+                            <th>Cliente</th>
+                            <th>Vendedor</th>
+                            <th>Pago</th>
+                            <th class="num">Descuento</th>
+                            <th class="num">Total</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-ventas"></tbody>
+                </table>
+            </div>
+            <div class="paginacion">
+                <button type="button" id="btn-anterior" class="secundario">Anterior</button>
+                <span id="info-pagina">Página 1 de 1</span>
+                <button type="button" id="btn-siguiente" class="secundario">Siguiente</button>
+            </div>
+        </section>
+
+        <div class="dos-columnas">
+            <!-- Más vendidos -->
+            <section>
+                <h3>Productos más vendidos</h3>
+                <div class="tabla-container">
+                    <table class="tabla-datos">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th class="num">Unidades</th>
+                                <th class="num">Importe</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-mas-vendidos"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Por vendedor -->
+            <section>
+                <h3>Ventas por vendedor</h3>
+                <div class="tabla-container">
+                    <table class="tabla-datos">
+                        <thead>
+                            <tr>
+                                <th>Vendedor</th>
+                                <th class="num">Ventas</th>
+                                <th class="num">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-por-vendedor"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Sistema Ventas - Sileliz</p>
+    </footer>
+
+    <script src="lib/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/reportes.js"></script>
+</body>
+</html>

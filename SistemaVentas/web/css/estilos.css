@@ -1,57 +1,111 @@
+/* estilos.css - Sileliz.mas. Solo lo PROPIO: colores, tipografía y detalles de marca.
+   La cuadrícula, tablas, formularios y menú colapsable los pone Bootstrap (lib/bootstrap). */
+ 
+:root {
+    --color-marca: #000000;          /* negro del logo */
+    --color-marca-suave: #212121;
+    --color-texto-marca: #ffffff;    /* blanco del logo */
+    --color-fondo: #f4f4f4;
+    --color-tarjeta: #ffffff;
+    --color-acento: #d63384;         /* detalles (corazón del logo); cámbialo si la tienda define paleta */
+    --color-alerta: #dc3545;         /* stock bajo */
+}
+ 
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f6f9;
-    color: #333;
-}
-
-header {
-    background-color: #0056b3;
-    color: white;
-    padding: 1rem 2rem;
+    background-color: var(--color-fondo);
+    color: #212529;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    min-height: 100vh;
 }
-
-header h1 {
-    margin: 0;
-    font-size: 1.5rem;
+ 
+/* ---- Barra superior (la arma layout.js con la navbar de Bootstrap) ---- */
+.barra-sileliz {
+    background-color: var(--color-marca);
+    color: var(--color-texto-marca);
+    padding-top: .4rem;
+    padding-bottom: .4rem;
 }
-
-nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    gap: 15px;
+ 
+.barra-sileliz .navbar-brand {
+    font-weight: 600;
+    letter-spacing: .5px;
 }
-
-nav a {
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
+ 
+.barra-sileliz .logo-barra {
+    width: auto;
 }
-
-nav a:hover {
-    text-decoration: underline;
+ 
+.barra-sileliz .nav-link {
+    color: rgba(255, 255, 255, .75);
+    border-bottom: 2px solid transparent;
 }
-
+ 
+.barra-sileliz .nav-link:hover,
+.barra-sileliz .nav-link:focus {
+    color: var(--color-texto-marca);
+}
+ 
+/* Página actual */
+.barra-sileliz a.activo {
+    color: var(--color-texto-marca);
+    font-weight: 600;
+    border-bottom-color: var(--color-acento);
+}
+ 
+/* Nombre (Rol) + botón Cerrar sesión */
+.usuario-sesion {
+    color: var(--color-texto-marca);
+    font-size: .9rem;
+}
+ 
+.usuario-sesion .usuario-etiqueta {
+    white-space: nowrap;
+}
+ 
+/* ---- Contenido y pie ---- */
 main {
-    max-width: 900px;
-    margin: 30px auto;
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-footer {
-    text-align: center;
-    padding: 15px;
-    background: #e9ecef;
-    position: fixed;
-    bottom: 0;
     width: 100%;
+    max-width: 1100px;
+    margin: 1.5rem auto;
+    padding: 1.25rem;
+    background: var(--color-tarjeta);
+    border-radius: .5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .1);
+}
+ 
+footer {
+    margin-top: auto;               /* se queda abajo sin tapar el contenido */
+    text-align: center;
+    padding: .75rem;
+    background: #e9ecef;
+    color: #495057;
+    font-size: .85rem;
+}
+ 
+/* Stock bajo en rojo (lo usan Inicio y Productos) */
+.stock-bajo {
+    color: var(--color-alerta);
+    font-weight: 600;
+}
+ 
+/* ---- Impresión (comprobante): sin menú, botones ni pie ---- */
+@media print {
+    header,
+    footer,
+    .no-imprimir {
+        display: none !important;
+    }
+ 
+    body {
+        background: #fff;
+    }
+ 
+    main {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        border-radius: 0;
+    }
 }
