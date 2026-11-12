@@ -13,7 +13,7 @@ import pe.tecsup.sileliz.modelo.DetalleVenta;
 import pe.tecsup.sileliz.modelo.EstadoVenta;
 import pe.tecsup.sileliz.modelo.MetodoPago;
 import pe.tecsup.sileliz.modelo.Venta;
-import pe.tecsup.sileliz.modelo.VentaResumen;
+import pe.tecsup.sileliz.modelo.VentaFila;
 import pe.tecsup.sileliz.util.Conexion;
 import pe.tecsup.sileliz.util.ErrorSql;
 import pe.tecsup.sileliz.util.Paginado;
@@ -100,7 +100,7 @@ public class VentaDao {
      * desde y hasta (ambos incluidos) pueden ser nulos. Si idUsuario no es nulo,
      * solo se listan las ventas de ese usuario (el vendedor ve las suyas).
      */
-    public Paginado<VentaResumen> listarPaginado(int pagina, int tam, LocalDate desde,
+    public Paginado<VentaFila> listarPaginado(int pagina, int tam, LocalDate desde,
                                                  LocalDate hasta, Integer idUsuario) {
         int t = Paginado.normalizarTam(tam);
         int p = Math.max(pagina, 1);
@@ -130,7 +130,7 @@ public class VentaDao {
                 + " ORDER BY v.fecha_hora DESC, v.id_venta DESC LIMIT ? OFFSET ?";
         String sqlTotal = "SELECT count(*) FROM venta v" + filtro;
 
-        List<VentaResumen> lista = new ArrayList<>();
+        List<VentaFila> lista = new ArrayList<>();
         long total;
         try (Connection cn = Conexion.getConnection()) {
             try (PreparedStatement ps = cn.prepareStatement(sqlTotal)) {
@@ -146,7 +146,7 @@ public class VentaDao {
                 ps.setInt(i, Paginado.offset(p, t));
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        lista.add(new VentaResumen(
+                        lista.add(new VentaFila(
                                 rs.getInt("id_venta"),
                                 String.format("%s-%06d", rs.getString("serie").trim(), rs.getInt("numero")),
                                 rs.getTimestamp("fecha_hora").toLocalDateTime(),

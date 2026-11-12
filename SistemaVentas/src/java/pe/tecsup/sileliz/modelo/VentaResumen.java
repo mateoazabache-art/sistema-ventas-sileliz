@@ -4,8 +4,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Una fila del historial de ventas (para la tabla de ventas.html).
- * Incluye el nombre del cliente ("Varios" si no hay) y del vendedor.
+ * Una fila del reporte de ventas (vista v_ventas_resumen).
+ * Es un record (Java 17): solo datos, sin setters. Gson lo convierte en JSON
+ * directamente: {"idVenta":15,"comprobante":"B001-000015","cliente":"Varios",...}
+ *
+ * cliente = "Varios" cuando la venta fue a consumidor final (RN-06).
  */
 public record VentaResumen(
         int idVenta,
@@ -13,7 +16,8 @@ public record VentaResumen(
         LocalDateTime fechaHora,
         String cliente,
         String vendedor,
+        String metodoPago,
+        BigDecimal descuento,
         BigDecimal total,
-        MetodoPago metodoPago,
-        EstadoVenta estado) {
+        String estado) {
 }

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión - Sileliz.mas</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body class="pagina-login">
+    <main class="login-contenedor">
+
+        <!-- Panel izquierdo: marca (logo y lema) -->
+        <section class="login-marca" aria-hidden="true">
+            <p class="login-logo">Sileliz<span>.mas</span></p>
+            <p class="login-lema">Moda en tallas grandes</p>
+            <p class="login-sistema">Sistema de Gestión de Ventas</p>
+        </section>
+
+        <!-- Panel derecho: formulario -->
+        <section class="login-formulario">
+            <h1>Iniciar sesión</h1>
+
+            <form id="form-login" novalidate>
+                <div class="campo">
+                    <label for="usuario">Usuario</label>
+                    <input type="text" id="usuario" name="usuario" maxlength="30"
+                           autocomplete="username" autofocus required>
+                    <small class="error-campo" id="error-usuario"></small>
+                </div>
+
+                <div class="campo">
+                    <label for="clave">Contraseña</label>
+                    <div class="clave-con-boton">
+                        <input type="password" id="clave" name="clave" maxlength="100"
+                               autocomplete="current-password" required>
+                        <button type="button" id="btn-ver-clave" aria-controls="clave"
+                                aria-pressed="false">Mostrar</button>
+                    </div>
+                    <small class="error-campo" id="error-clave"></small>
+                </div>
+
+                <!-- Mensaje del servidor (401, 423...). Se llena con textContent -->
+                <p id="mensaje-login" class="mensaje-error" role="alert"></p>
+
+                <button type="submit" id="btn-ingresar" class="btn-ingresar">Ingresar</button>
+            </form>
+        </section>
+
+    </main>
+
+    <!-- login.html NO carga layout.js: aquí todavía no hay sesión -->
+    <script src="js/api.js"></script>
+    <script src="js/login.js"></script>
+</body>
+</html>
