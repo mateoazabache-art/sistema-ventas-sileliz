@@ -37,6 +37,14 @@ public class SesionFilterTest {
     }
 
     @Test
+    public void soloElAdministradorDesactivaClientes() {
+        assertTrue(SesionFilter.requiereAdministrador("/api/clientes/5", "DELETE"));
+        // crear, editar y consultar siguen permitidos al vendedor
+        assertFalse(SesionFilter.requiereAdministrador("/api/clientes/5", "PUT"));
+        assertFalse(SesionFilter.requiereAdministrador("/api/clientes", "GET"));
+    }
+
+    @Test
     public void soloElAdministradorAnulaVentas() {
         assertTrue(SesionFilter.requiereAdministrador("/api/ventas/15/anular", "POST"));
     }
