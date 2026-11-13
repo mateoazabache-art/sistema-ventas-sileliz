@@ -40,6 +40,16 @@ public class VarianteDao {
             + "ORDER BY p.nombre, v.sku "
             + "LIMIT ?";
 
+    /** Todas las variantes de un producto, activas e inactivas (pantalla de productos). */
+    private static final String SQL_POR_PRODUCTO
+            = "SELECT v.id_variante, v.id_producto, v.talla, v.color, v.sku, "
+            + "v.stock, v.stock_minimo, v.activo, "
+            + "p.nombre, p.precio_venta, p.activo AS producto_activo "
+            + "FROM variante_producto v "
+            + "JOIN producto p ON p.id_producto = v.id_producto "
+            + "WHERE v.id_producto = ? "
+            + "ORDER BY v.id_variante";
+
     private static final String SQL_DESCONTAR
             = "UPDATE variante_producto "
             + "SET stock = stock - ? "
@@ -52,8 +62,8 @@ public class VarianteDao {
 
     private static final String SQL_INSERTAR
             = "INSERT INTO variante_producto "
-            + "(id_producto, talla, color, sku) "
-            + "VALUES (?, ?, ?, ?) "
+            + "(id_producto, talla, color, sku, stock_minimo) "
+            + "VALUES (?, ?, ?, ?, ?) "
             + "RETURNING id_variante, stock, stock_minimo, activo";
 
     private static final String SQL_ACTUALIZAR
@@ -81,6 +91,28 @@ public class VarianteDao {
         }
     }
 
+    /** Variantes de un producto (activas e inactivas), en el orden en que se registraron. */
+    public List<VarianteProducto> listarPorProducto(int idProducto) {
+        try (Connection cn = Conexion.getConnection()) {
+            return listarPorProducto(cn, idProducto);
+        } catch (SQLException e) {
+            throw ErrorSql.traducir(e);
+        }
+    }
+
+    List<VarianteProducto> listarPorProducto(Connection cn, int idProducto) throws SQLException {
+        List<VarianteProducto> resultado = new ArrayList<>();
+        try (PreparedStatement ps = cn.prepareStatement(SQL_POR_PRODUCTO)) {
+            ps.setInt(1, idProducto);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultado.add(mapear(rs));
+                }
+            }
+        }
+        return resultado;
+    }
+
     public VarianteProducto insertar(VarianteProducto variante) {
         validarVariante(variante);
 
@@ -101,6 +133,7 @@ public class VarianteDao {
             ps.setString(2, variante.getTalla());
             ps.setString(3, variante.getColor());
             ps.setString(4, variante.getSku());
+            ps.setInt(5, variante.getStockMinimo());   // antes se ignoraba y quedaba el valor por defecto (2)
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
