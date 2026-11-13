@@ -146,6 +146,61 @@ public class VentaService {
         return c;
     }
 
+
+    /** Largo maximo del motivo (columna venta.motivo_anulacion). */
+    private static final int MAX_MOTIVO = 200;
+
+    /**
+     * Anula una venta (POST /api/ventas/{id}/anular). Solo el administrador.
+     * Todo o nada: marca ANULADA (RN-08), repone el stock de cada prenda y lo anota en el kardex.
+     * La venta NO se borra (el trigger trg_venta_protegida lo impide): queda en el historial.
+     */
+    public Comprobante anular(int idVenta, String motivo, Usuario u) {
+        // ===== A. VALIDAR (sin conexion) =====
+        if (!u.esAdministrador()) {
+            throw new AccesoDenegadoException("Solo el administrador puede anular ventas.");
+        }
+        if (motivo == null || motivo.trim().isEmpty()) {
+            throw new DatoInvalidoException("Escriba el motivo de la anulación.");
+        }
+        String m = motivo.trim();
+        if (m.length() > MAX_MOTIVO) {
+            throw new DatoInvalidoException("El motivo no puede pasar de " + MAX_MOTIVO + " caracteres.");
+        }
+        Comprobante c = ventaDao.buscarPorId(idVenta)
+                .orElseThrow(() -> new NoEncontradoException("No existe la venta " + idVenta + "."));
+        try {
+            c.venta().anular(m);   // regla del modelo: no se anula dos veces (RN-08)
+        } catch (IllegalStateException e) {
+            throw new DatoInvalidoException("La venta " + c.venta().serieNumero() + " ya está anulada.");
+        }
+
+        // ===== B. LA CAJA FUERTE (transaccion) =====
+        try (Connection cn = Conexion.getConnection()) {
+            cn.setAutoCommit(false);
+            try {
+                // WHERE estado = 'EMITIDA': si otro admin la anulo hace un instante, devuelve false.
+                if (!ventaDao.anular(cn, idVenta, m)) {
+                    throw new DatoInvalidoException("La venta " + c.venta().serieNumero() + " ya está anulada.");
+                }
+                // Mismo orden que al vender (por variante) para evitar deadlocks.
+                for (DetalleVenta d : c.venta().getDetallesOrdenadosPorVariante()) {
+                    varianteDao.reponerStock(cn, d.getIdVariante(), d.getCantidad());
+                    // Orden de deAnulacion: (idVenta, idVariante, cantidad, idUsuario, motivo).
+                    movimientoDao.insertar(cn, MovimientoStock.deAnulacion(
+                            idVenta, d.getIdVariante(), d.getCantidad(), u.getIdPersona(), m));
+                }
+                cn.commit();
+            } catch (RuntimeException | SQLException e) {
+                cn.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            throw ErrorSql.traducir(e);
+        }
+        return buscarPorId(idVenta, u);   // el comprobante ya con estado ANULADA
+    }
+
     /**
      * Historial de ventas (GET /api/ventas?desde=&hasta=&pagina=&tam=).
      * Los parametros llegan como texto desde la URL y se validan aqui (400 si estan mal).

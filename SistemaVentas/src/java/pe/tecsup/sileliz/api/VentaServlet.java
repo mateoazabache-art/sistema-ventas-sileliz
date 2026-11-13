@@ -5,7 +5,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 import pe.tecsup.sileliz.excepcion.DatoInvalidoException;
+import pe.tecsup.sileliz.excepcion.NoEncontradoException;
 import pe.tecsup.sileliz.excepcion.PersistenciaException;
 import pe.tecsup.sileliz.excepcion.SilelizException;
 import pe.tecsup.sileliz.filtro.SesionFilter;
@@ -20,6 +22,7 @@ import pe.tecsup.sileliz.util.Json;
  *   POST /api/ventas       -> 201 con la venta (idVenta, serie, numero, totales)
  *   GET  /api/ventas       -> 200 historial paginado (?desde=&hasta=&pagina=&tam=)
  *   GET  /api/ventas/{id}  -> 200 con el comprobante (venta + detalle + nombres)
+ *   POST /api/ventas/{id}/anular  {"motivo":"..."} -> 200 (solo administrador; lo exige tambien SesionFilter)
  */
 @WebServlet("/api/ventas/*")
 public class VentaServlet extends HttpServlet {
@@ -55,6 +58,21 @@ public class VentaServlet extends HttpServlet {
         // UTF-8 al leer el cuerpo (va ANTES de Json.leer). Json.responder ya responde en UTF-8.
         req.setCharacterEncoding("UTF-8");
         try {
+            // POST /api/ventas/{id}/anular  -> anulacion (solo administrador)
+            String pathInfo = req.getPathInfo();
+            if (pathInfo != null && pathInfo.matches("/\\d+/anular")) {
+                int id = Integer.parseInt(pathInfo.split("/")[1]);
+                Map<?, ?> cuerpo = Json.leer(req, Map.class);           // {"motivo":"..."}
+                Object motivo = cuerpo.get("motivo");
+                Usuario u = SesionFilter.usuarioActual(req);
+                Json.responder(resp, 200,
+                        servicio.anular(id, motivo == null ? null : motivo.toString(), u));
+                return;
+            }
+            if (pathInfo != null && !pathInfo.equals("/")) {
+                throw new NoEncontradoException("Ruta no encontrada.");
+            }
+
             // PASO 1: leer el carrito. JSON vacio o mal formado -> DatoInvalidoException (400).
             VentaSolicitud solicitud = Json.leer(req, VentaSolicitud.class);
 
@@ -68,6 +86,8 @@ public class VentaServlet extends HttpServlet {
             // PASO 4: 201 Created con la venta.
             Json.responder(resp, 201, v);
 
+        } catch (NumberFormatException e) {
+            Json.error(resp, new DatoInvalidoException("El número de venta de la URL no es válido."));
         } catch (SilelizException e) {
             // Errores previstos: 400, 401, 404, 409... con {"error": "..."}
             Json.error(resp, e);
