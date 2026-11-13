@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Map;
 import pe.tecsup.sileliz.excepcion.DatoInvalidoException;
 import pe.tecsup.sileliz.excepcion.SilelizException;
@@ -80,7 +81,13 @@ public final class Json {
 
         @Override
         public LocalDateTime read(JsonReader in) throws IOException {
-            return LocalDateTime.parse(in.nextString());
+            String texto = in.nextString();
+            try {
+                return LocalDateTime.parse(texto);
+            } catch (DateTimeParseException e) {
+                // JsonParseException -> Json.leer responde 400 (sin esto: 500 de Tomcat)
+                throw new JsonParseException("Fecha y hora no valida: " + texto, e);
+            }
         }
     }
 
@@ -92,7 +99,12 @@ public final class Json {
 
         @Override
         public LocalDate read(JsonReader in) throws IOException {
-            return LocalDate.parse(in.nextString());
+            String texto = in.nextString();
+            try {
+                return LocalDate.parse(texto);
+            } catch (DateTimeParseException e) {
+                throw new JsonParseException("Fecha no valida: " + texto, e);
+            }
         }
     }
 }
