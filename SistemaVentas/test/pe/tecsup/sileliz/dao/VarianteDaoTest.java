@@ -1,3 +1,4 @@
+
 package pe.tecsup.sileliz.dao;
 
 import static org.junit.Assert.assertEquals;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import pe.tecsup.sileliz.modelo.Producto;
 import pe.tecsup.sileliz.modelo.VarianteProducto;
 import pe.tecsup.sileliz.util.Conexion;
 
@@ -123,23 +125,26 @@ public class VarianteDaoTest {
             throws SQLException {
         dao.reponerStock(cn, -1, 3);
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
-    public void descontarStockConCantidadCeroLanzaExcepcion() throws SQLException {
+    public void descontarStockConCantidadCeroLanzaExcepcion()
+            throws SQLException {
         dao.descontarStock(cn, 1, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void reponerStockConCantidadNegativaLanzaExcepcion() throws SQLException {
+    public void reponerStockConCantidadNegativaLanzaExcepcion()
+            throws SQLException {
         dao.reponerStock(cn, 1, -2);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void descontarStockConCantidadNegativaLanzaExcepcion() throws SQLException {
+    public void descontarStockConCantidadNegativaLanzaExcepcion()
+            throws SQLException {
         dao.descontarStock(cn, 1, -2);
     }
-    
-        @Test
+
+    @Test
     public void buscarPorTextoConNullDevuelveListaVacia() throws SQLException {
         assertTrue(dao.buscarPorTexto(cn, null).isEmpty());
     }
@@ -150,25 +155,28 @@ public class VarianteDaoTest {
     }
 
     @Test
-    public void buscarPorTextoSinCoincidenciasDevuelveListaVacia() throws SQLException {
+    public void buscarPorTextoSinCoincidenciasDevuelveListaVacia()
+            throws SQLException {
         assertTrue(dao.buscarPorTexto(cn, "PRODUCTO-QUE-NO-EXISTE").isEmpty());
     }
 
     @Test
-    public void buscarPorTextoMayorAlLimiteDevuelveListaVacia() throws SQLException {
+    public void buscarPorTextoMayorAlLimiteDevuelveListaVacia()
+            throws SQLException {
         String texto = "A".repeat(101);
 
         assertTrue(dao.buscarPorTexto(cn, texto).isEmpty());
     }
-    
-        @Test
+
+    @Test
     public void buscarPorTextoEscapaComodines() throws SQLException {
         assertTrue(dao.buscarPorTexto(cn, "%").isEmpty());
         assertTrue(dao.buscarPorTexto(cn, "_").isEmpty());
     }
 
     @Test(expected = SQLException.class)
-    public void reponerStockConDesbordamientoLanzaExcepcion() throws SQLException {
+    public void reponerStockConDesbordamientoLanzaExcepcion()
+            throws SQLException {
         int id = idPorSku("P-001-XL-BLA");
 
         try (PreparedStatement ps = cn.prepareStatement(
@@ -179,7 +187,98 @@ public class VarianteDaoTest {
 
         dao.reponerStock(cn, id, 1);
     }
-    
+
+    @Test
+    public void insertarVarianteGuardaSusDatos() throws SQLException {
+        VarianteProducto variante = nuevaVariante();
+
+        VarianteProducto resultado = dao.insertar(cn, variante);
+
+        assertTrue(resultado.getIdVariante() > 0);
+        assertEquals("TEST-VAR-INSERTAR", resultado.getSku());
+        assertEquals("4XL", resultado.getTalla());
+        assertEquals("Prueba", resultado.getColor());
+        assertEquals(0, resultado.getStock());
+        assertEquals(2, resultado.getStockMinimo());
+        assertTrue(resultado.isActivo());
+    }
+
+    @Test
+    public void actualizarVarianteModificaSusDatos() throws SQLException {
+        int id = idPorSku("P-001-XL-BLA");
+        VarianteProducto variante = dao.buscarPorId(cn, id).get();
+
+        variante.setTalla("5XL");
+        variante.setColor("Prueba");
+        variante.setSku("TEST-VAR-ACTUALIZAR");
+        variante.setStockMinimo(4);
+
+        assertTrue(dao.actualizar(cn, variante));
+
+        VarianteProducto actualizada = dao.buscarPorId(cn, id).get();
+
+        assertEquals("5XL", actualizada.getTalla());
+        assertEquals("Prueba", actualizada.getColor());
+        assertEquals("TEST-VAR-ACTUALIZAR", actualizada.getSku());
+        assertEquals(4, actualizada.getStockMinimo());
+    }
+
+    @Test
+    public void actualizarVarianteInexistenteDevuelveFalse()
+            throws SQLException {
+        VarianteProducto variante = nuevaVariante();
+        variante.setIdVariante(999999);
+
+        assertFalse(dao.actualizar(cn, variante));
+    }
+
+    @Test
+    public void desactivarVarianteCambiaSuEstado() throws SQLException {
+        int id = idPorSku("P-001-XL-BLA");
+
+        assertTrue(dao.desactivar(cn, id));
+
+        VarianteProducto variante = dao.buscarPorId(cn, id).get();
+
+        assertFalse(variante.isActivo());
+    }
+
+    @Test
+    public void desactivarVarianteInexistenteDevuelveFalse()
+            throws SQLException {
+        assertFalse(dao.desactivar(cn, 999999));
+    }
+
+    private VarianteProducto nuevaVariante() throws SQLException {
+        Producto producto = new Producto();
+        producto.setIdProducto(idProductoPorCodigo("P-001"));
+
+        VarianteProducto variante = new VarianteProducto();
+        variante.setProducto(producto);
+        variante.setTalla("4XL");
+        variante.setColor("Prueba");
+        variante.setSku("TEST-VAR-INSERTAR");
+        variante.setStockMinimo(2);
+
+        return variante;
+    }
+
+    private int idProductoPorCodigo(String codigo) throws SQLException {
+        String sql = "SELECT id_producto FROM producto WHERE codigo = ?";
+
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setString(1, codigo);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id_producto");
+                }
+            }
+        }
+
+        throw new SQLException("No existe el producto de prueba: " + codigo);
+    }
+
     private int idPorSku(String sku) throws SQLException {
         String sql = "SELECT id_variante FROM variante_producto WHERE sku = ?";
 
