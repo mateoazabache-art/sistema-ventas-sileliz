@@ -9,6 +9,8 @@ import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import pe.tecsup.sileliz.modelo.Comprobante;
 import pe.tecsup.sileliz.modelo.DetalleVenta;
 import pe.tecsup.sileliz.modelo.EstadoVenta;
 import pe.tecsup.sileliz.modelo.MetodoPago;
@@ -162,6 +164,76 @@ public class VentaDao {
             throw ErrorSql.traducir(e);
         }
         return Paginado.de(lista, p, t, total);
+    }
+
+
+    /** Cabecera de la venta con los nombres ya armados (vista de 03_vistas_triggers.sql). */
+    private static final String SQL_POR_ID =
+            "SELECT id_venta, serie, numero, fecha_hora, id_cliente, cliente, dni_cliente, "
+            + "id_usuario, vendedor, metodo_pago, base_imponible, descuento, igv, total, "
+            + "estado, motivo_anulacion "
+            + "FROM v_ventas_resumen WHERE id_venta = ?";
+
+    private static final String SQL_DETALLE =
+            "SELECT id_detalle, id_variante, descripcion, cantidad, precio_unitario "
+            + "FROM detalle_venta WHERE id_venta = ? ORDER BY id_detalle";
+
+    /**
+     * Venta completa para el comprobante: cabecera + detalle + nombres.
+     * Vacio si no existe. Abre y cierra su propia conexion (no es parte de una transaccion).
+     */
+    public Optional<Comprobante> buscarPorId(int idVenta) {
+        try (Connection cn = Conexion.getConnection()) {
+            Venta v;
+            String cliente;
+            String dniCliente;
+            String vendedor;
+            try (PreparedStatement ps = cn.prepareStatement(SQL_POR_ID)) {
+                ps.setInt(1, idVenta);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        return Optional.empty();
+                    }
+                    v = new Venta();
+                    v.setIdVenta(rs.getInt("id_venta"));
+                    v.setSerie(rs.getString("serie").trim());
+                    v.setNumero(rs.getInt("numero"));
+                    v.setFechaHora(rs.getTimestamp("fecha_hora").toLocalDateTime());
+                    int idCliente = rs.getInt("id_cliente");
+                    v.setIdCliente(rs.wasNull() ? null : idCliente);   // null = consumidor final
+                    v.setIdUsuario(rs.getInt("id_usuario"));
+                    v.setMetodoPago(MetodoPago.valueOf(rs.getString("metodo_pago")));
+                    v.setBaseImponible(rs.getBigDecimal("base_imponible"));
+                    v.setDescuento(rs.getBigDecimal("descuento"));
+                    v.setIgv(rs.getBigDecimal("igv"));
+                    v.setTotal(rs.getBigDecimal("total"));
+                    v.setEstado(EstadoVenta.valueOf(rs.getString("estado")));
+                    v.setMotivoAnulacion(rs.getString("motivo_anulacion"));
+                    cliente = rs.getString("cliente");
+                    dniCliente = rs.getString("dni_cliente");
+                    vendedor = rs.getString("vendedor");
+                }
+            }
+            List<DetalleVenta> detalles = new ArrayList<>();
+            try (PreparedStatement ps = cn.prepareStatement(SQL_DETALLE)) {
+                ps.setInt(1, idVenta);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        DetalleVenta d = new DetalleVenta(
+                                rs.getInt("id_variante"),
+                                rs.getString("descripcion"),
+                                rs.getInt("cantidad"),
+                                rs.getBigDecimal("precio_unitario"));
+                        d.setIdDetalle(rs.getInt("id_detalle"));
+                        detalles.add(d);
+                    }
+                }
+            }
+            v.setDetalles(detalles);
+            return Optional.of(new Comprobante(v, cliente, dniCliente, vendedor));
+        } catch (SQLException e) {
+            throw ErrorSql.traducir(e);
+        }
     }
 
     /** Pone los parametros en orden y devuelve el siguiente indice libre. */

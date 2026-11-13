@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import pe.tecsup.sileliz.excepcion.DatoInvalidoException;
 import pe.tecsup.sileliz.excepcion.PersistenciaException;
 import pe.tecsup.sileliz.excepcion.SilelizException;
 import pe.tecsup.sileliz.filtro.SesionFilter;
@@ -16,12 +17,35 @@ import pe.tecsup.sileliz.util.Json;
 
 /**
  * API de ventas (plan 3.7). Solo lee JSON, llama al servicio y responde JSON.
- *   POST /api/ventas  -> 201 con la venta (idVenta, serie, numero, totales)
+ *   POST /api/ventas       -> 201 con la venta (idVenta, serie, numero, totales)
+ *   GET  /api/ventas/{id}  -> 200 con el comprobante (venta + detalle + nombres)
  */
 @WebServlet("/api/ventas/*")
 public class VentaServlet extends HttpServlet {
 
     private final VentaService servicio = new VentaService();
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        try {
+            String pathInfo = req.getPathInfo();          // "/115" -> venta 115
+            if (pathInfo == null || pathInfo.equals("/")) {
+                // GET /api/ventas (historial paginado) va en el siguiente paso.
+                throw new DatoInvalidoException("Falta el número de venta en la URL.");
+            }
+            int id = Integer.parseInt(pathInfo.substring(1));
+            Usuario u = SesionFilter.usuarioActual(req);  // para ver si puede mirar esta venta
+            Json.responder(resp, 200, servicio.buscarPorId(id, u));
+
+        } catch (NumberFormatException e) {
+            Json.error(resp, new DatoInvalidoException("El número de venta de la URL no es válido."));
+        } catch (SilelizException e) {
+            Json.error(resp, e);              // 401, 403, 404
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            Json.error(resp, new PersistenciaException("Error interno del servidor."));
+        }
+    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {

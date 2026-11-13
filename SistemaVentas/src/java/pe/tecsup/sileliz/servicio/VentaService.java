@@ -7,11 +7,14 @@ import pe.tecsup.sileliz.dao.VarianteDao;
 import pe.tecsup.sileliz.dao.VentaDao;
 import pe.tecsup.sileliz.descuento.Descuento;
 import pe.tecsup.sileliz.descuento.DescuentoFactory;
+import pe.tecsup.sileliz.excepcion.AccesoDenegadoException;
 import pe.tecsup.sileliz.excepcion.DatoInvalidoException;
 import pe.tecsup.sileliz.excepcion.NoEncontradoException;
 import pe.tecsup.sileliz.excepcion.StockInsuficienteException;
+import pe.tecsup.sileliz.modelo.Comprobante;
 import pe.tecsup.sileliz.modelo.DetalleVenta;
 import pe.tecsup.sileliz.modelo.MovimientoStock;
+import pe.tecsup.sileliz.modelo.Usuario;
 import pe.tecsup.sileliz.modelo.VarianteProducto;
 import pe.tecsup.sileliz.modelo.Venta;
 import pe.tecsup.sileliz.modelo.VentaSolicitud;
@@ -124,5 +127,18 @@ public class VentaService {
         } catch (SQLException e) {
             throw ErrorSql.traducir(e);
         }
+    }
+
+    /**
+     * Venta completa para el comprobante (GET /api/ventas/{id}).
+     * Plan 3.7: el vendedor solo ve SUS ventas; el administrador ve todas.
+     */
+    public Comprobante buscarPorId(int idVenta, Usuario u) {
+        Comprobante c = ventaDao.buscarPorId(idVenta)
+                .orElseThrow(() -> new NoEncontradoException("No existe la venta " + idVenta + "."));
+        if (!u.esAdministrador() && c.venta().getIdUsuario() != u.getIdPersona()) {
+            throw new AccesoDenegadoException("Solo puede ver sus propias ventas.");
+        }
+        return c;
     }
 }
