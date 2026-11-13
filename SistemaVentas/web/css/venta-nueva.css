@@ -1,0 +1,40 @@
+/* venta-nueva.css: solo lo propio de la pantalla de venta. El resto lo pone Bootstrap. */
+
+.pagina-venta .card-title {
+    font-weight: 600;
+}
+
+/* Totales en dos columnas: etiqueta a la izquierda, monto a la derecha */
+.pagina-venta .totales {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    row-gap: .25rem;
+    margin-bottom: .5rem;
+}
+
+.pagina-venta .totales dd {
+    margin: 0;
+    padding-left: 1rem;
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.pagina-venta .totales .total {
+    font-size: 1.25rem;
+    font-weight: 700;
+    border-top: 1px solid #dee2e6;
+    padding-top: .25rem;
+}
+
+/* Cantidad del carrito: input angosto */
+.pagina-venta .cantidad {
+    width: 4.5rem;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.pagina-venta .sin-stock {
+    color: var(--color-alerta);
+    font-weight: 600;
+}
