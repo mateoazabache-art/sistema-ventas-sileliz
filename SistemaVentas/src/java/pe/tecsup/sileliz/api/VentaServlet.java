@@ -18,6 +18,7 @@ import pe.tecsup.sileliz.util.Json;
 /**
  * API de ventas (plan 3.7). Solo lee JSON, llama al servicio y responde JSON.
  *   POST /api/ventas       -> 201 con la venta (idVenta, serie, numero, totales)
+ *   GET  /api/ventas       -> 200 historial paginado (?desde=&hasta=&pagina=&tam=)
  *   GET  /api/ventas/{id}  -> 200 con el comprobante (venta + detalle + nombres)
  */
 @WebServlet("/api/ventas/*")
@@ -28,13 +29,15 @@ public class VentaServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            String pathInfo = req.getPathInfo();          // "/115" -> venta 115
+            String pathInfo = req.getPathInfo();          // null o "/" -> historial; "/115" -> venta 115
+            Usuario u = SesionFilter.usuarioActual(req);  // el vendedor solo ve sus ventas
             if (pathInfo == null || pathInfo.equals("/")) {
-                // GET /api/ventas (historial paginado) va en el siguiente paso.
-                throw new DatoInvalidoException("Falta el número de venta en la URL.");
+                Json.responder(resp, 200, servicio.listar(
+                        req.getParameter("desde"), req.getParameter("hasta"),
+                        req.getParameter("pagina"), req.getParameter("tam"), u));
+                return;
             }
             int id = Integer.parseInt(pathInfo.substring(1));
-            Usuario u = SesionFilter.usuarioActual(req);  // para ver si puede mirar esta venta
             Json.responder(resp, 200, servicio.buscarPorId(id, u));
 
         } catch (NumberFormatException e) {

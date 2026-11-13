@@ -2,6 +2,8 @@ package pe.tecsup.sileliz.servicio;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import pe.tecsup.sileliz.dao.MovimientoDao;
 import pe.tecsup.sileliz.dao.VarianteDao;
 import pe.tecsup.sileliz.dao.VentaDao;
@@ -17,9 +19,11 @@ import pe.tecsup.sileliz.modelo.MovimientoStock;
 import pe.tecsup.sileliz.modelo.Usuario;
 import pe.tecsup.sileliz.modelo.VarianteProducto;
 import pe.tecsup.sileliz.modelo.Venta;
+import pe.tecsup.sileliz.modelo.VentaFila;
 import pe.tecsup.sileliz.modelo.VentaSolicitud;
 import pe.tecsup.sileliz.util.Conexion;
 import pe.tecsup.sileliz.util.ErrorSql;
+import pe.tecsup.sileliz.util.Paginado;
 
 /**
  * Reglas de la venta (RN-07 stock, RN-09 detalle, RN-12 totales).
@@ -140,5 +144,47 @@ public class VentaService {
             throw new AccesoDenegadoException("Solo puede ver sus propias ventas.");
         }
         return c;
+    }
+
+    /**
+     * Historial de ventas (GET /api/ventas?desde=&hasta=&pagina=&tam=).
+     * Los parametros llegan como texto desde la URL y se validan aqui (400 si estan mal).
+     * Sin fechas: todas. El vendedor solo ve SUS ventas; el administrador, todas (plan 3.7).
+     */
+    public Paginado<VentaFila> listar(String desde, String hasta, String pagina, String tam, Usuario u) {
+        LocalDate d = fecha(desde, "desde");
+        LocalDate h = fecha(hasta, "hasta");
+        if (d != null && h != null && d.isAfter(h)) {
+            throw new DatoInvalidoException("La fecha \"desde\" no puede ser posterior a la fecha \"hasta\".");
+        }
+        int pag = entero(pagina, "página", 1);
+        int t = entero(tam, "tamaño de página", Paginado.TAM_POR_DEFECTO);
+        Integer idUsuario = u.esAdministrador() ? null : u.getIdPersona();
+        return ventaDao.listarPaginado(pag, t, d, h, idUsuario);
+    }
+
+    /** Texto AAAA-MM-DD -> fecha. Vacio -> null (sin filtro). Mal escrito -> 400. */
+    private static LocalDate fecha(String texto, String nombre) {
+        if (texto == null || texto.isBlank()) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(texto.trim());
+        } catch (DateTimeParseException e) {
+            throw new DatoInvalidoException(
+                    "La fecha \"" + nombre + "\" no es válida. Use el formato AAAA-MM-DD.");
+        }
+    }
+
+    /** Texto -> entero. Vacio -> valor por defecto. Letras -> 400. */
+    private static int entero(String texto, String nombre, int porDefecto) {
+        if (texto == null || texto.isBlank()) {
+            return porDefecto;
+        }
+        try {
+            return Integer.parseInt(texto.trim());
+        } catch (NumberFormatException e) {
+            throw new DatoInvalidoException("El valor de \"" + nombre + "\" debe ser un número entero.");
+        }
     }
 }
