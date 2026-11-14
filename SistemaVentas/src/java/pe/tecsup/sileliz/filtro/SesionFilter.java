@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import pe.tecsup.sileliz.excepcion.AccesoDenegadoException;
 import pe.tecsup.sileliz.excepcion.AutenticacionException;
 import pe.tecsup.sileliz.modelo.Usuario;
@@ -27,6 +29,10 @@ import pe.tecsup.sileliz.util.Json;
  *   3. Rutas publicas (/api/login, /api/logout, /api/salud): pasan sin sesion.
  *   4. Sin sesion -> 401 (api.js lleva a login.html).
  *   5. Rol sin permiso -> 403 (CP-04).
+ *   6. Red de seguridad: si un Servlet deja escapar un error inesperado
+ *      (RuntimeException), responde 500 {"error": "..."} con un mensaje
+ *      generico y el detalle va solo al log (plan 6, "Errores que revelan
+ *      datos"). Sin esto, Tomcat mostraria su pagina con la traza del error.
  *
  * Los Servlets ya no tienen que revisar nada de esto: si el codigo llega a
  * ellos, hay sesion y el rol tiene permiso.
@@ -36,6 +42,11 @@ public class SesionFilter implements Filter {
 
     /** Nombre del atributo de sesion donde LoginServlet guarda el Usuario. */
     public static final String ATRIBUTO_USUARIO = "usuario";
+
+    private static final Logger LOG = Logger.getLogger(SesionFilter.class.getName());
+
+    /** Mensaje para el usuario cuando algo falla sin estar previsto (el detalle va al log). */
+    static final String MENSAJE_INESPERADO = "Ocurrió un error inesperado. Intente de nuevo.";
 
     /** Rutas que no necesitan sesion. */
     private static final Set<String> PUBLICAS = Set.of("/api/login", "/api/logout", "/api/salud");
@@ -72,7 +83,7 @@ public class SesionFilter implements Filter {
 
         // 3. Rutas publicas
         if (PUBLICAS.contains(ruta)) {
-            chain.doFilter(request, response);
+            continuar(chain, req, resp);
             return;
         }
 
@@ -89,7 +100,21 @@ public class SesionFilter implements Filter {
             return;
         }
 
-        chain.doFilter(request, response);
+        continuar(chain, req, resp);
+    }
+
+    /** 6. Pasa la peticion al Servlet; si se escapa un error no previsto, responde 500 en JSON. */
+    static void continuar(FilterChain chain, HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, ServletException {
+        try {
+            chain.doFilter(req, resp);
+        } catch (RuntimeException e) {
+            LOG.log(Level.SEVERE, "Error no controlado en " + req.getMethod() + " " + rutaDe(req), e);
+            if (!resp.isCommitted()) {
+                resp.resetBuffer();
+                Json.responder(resp, 500, Map.of("error", MENSAJE_INESPERADO));
+            }
+        }
     }
 
     /**
@@ -110,6 +135,11 @@ public class SesionFilter implements Filter {
             return true;
         }
         if (empiezaCon(ruta, ADMIN_ESCRIBE) && ESCRITURA.contains(metodo)) {
+            return true;
+        }
+        // Desactivar un cliente: solo el administrador (plan 2.1).
+        // El vendedor si puede crear y editar clientes (POST y PUT).
+        if (empiezaCon(ruta, List.of("/api/clientes")) && "DELETE".equals(metodo)) {
             return true;
         }
         // Anular una venta: solo el administrador (RN-08)

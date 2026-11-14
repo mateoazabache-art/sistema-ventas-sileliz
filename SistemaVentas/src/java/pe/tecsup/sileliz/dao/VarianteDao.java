@@ -1,3 +1,4 @@
+
 package pe.tecsup.sileliz.dao;
 
 import java.sql.Connection;
@@ -14,8 +15,6 @@ import pe.tecsup.sileliz.util.ErrorSql;
 
 /**
  * Acceso a datos de variante_producto.
- * Las consultas abren su propia conexion.
- * Los metodos de stock usan la conexion de la transaccion de venta.
  */
 public class VarianteDao {
 
@@ -51,6 +50,21 @@ public class VarianteDao {
             + "SET stock = stock + ? "
             + "WHERE id_variante = ?";
 
+    private static final String SQL_INSERTAR
+            = "INSERT INTO variante_producto "
+            + "(id_producto, talla, color, sku) "
+            + "VALUES (?, ?, ?, ?) "
+            + "RETURNING id_variante, stock, stock_minimo, activo";
+
+    private static final String SQL_ACTUALIZAR
+            = "UPDATE variante_producto "
+            + "SET talla = ?, color = ?, sku = ?, stock_minimo = ? "
+            + "WHERE id_variante = ?";
+
+    private static final String SQL_DESACTIVAR
+            = "UPDATE variante_producto "
+            + "SET activo = FALSE WHERE id_variante = ?";
+
     public Optional<VarianteProducto> buscarPorId(int idVariante) {
         try (Connection cn = Conexion.getConnection()) {
             return buscarPorId(cn, idVariante);
@@ -64,6 +78,113 @@ public class VarianteDao {
             return buscarPorTexto(cn, texto);
         } catch (SQLException e) {
             throw ErrorSql.traducir(e);
+        }
+    }
+
+    public VarianteProducto insertar(VarianteProducto variante) {
+        validarVariante(variante);
+
+        try (Connection cn = Conexion.getConnection()) {
+            return insertar(cn, variante);
+        } catch (SQLException e) {
+            throw ErrorSql.traducir(e);
+        }
+    }
+
+    VarianteProducto insertar(Connection cn, VarianteProducto variante)
+            throws SQLException {
+
+        validarVariante(variante);
+
+        try (PreparedStatement ps = cn.prepareStatement(SQL_INSERTAR)) {
+            ps.setInt(1, variante.getProducto().getIdProducto());
+            ps.setString(2, variante.getTalla());
+            ps.setString(3, variante.getColor());
+            ps.setString(4, variante.getSku());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    variante.setIdVariante(rs.getInt("id_variante"));
+                    variante.setStock(rs.getInt("stock"));
+                    variante.setStockMinimo(rs.getInt("stock_minimo"));
+                    variante.setActivo(rs.getBoolean("activo"));
+                    return variante;
+                }
+            }
+
+            throw new IllegalStateException(
+                    "No se obtuvo el ID generado de la variante.");
+        }
+    }
+
+    public boolean actualizar(VarianteProducto variante) {
+        validarVariante(variante);
+
+        try (Connection cn = Conexion.getConnection()) {
+            return actualizar(cn, variante);
+        } catch (SQLException e) {
+            throw ErrorSql.traducir(e);
+        }
+    }
+
+    boolean actualizar(Connection cn, VarianteProducto variante)
+            throws SQLException {
+
+        validarVariante(variante);
+
+        if (variante.getIdVariante() <= 0) {
+            throw new IllegalArgumentException(
+                    "El ID de la variante debe ser válido.");
+        }
+
+        if (variante.getStockMinimo() < 0) {
+            throw new IllegalArgumentException(
+                    "El stock mínimo no puede ser negativo.");
+        }
+
+        try (PreparedStatement ps = cn.prepareStatement(SQL_ACTUALIZAR)) {
+            ps.setString(1, variante.getTalla());
+            ps.setString(2, variante.getColor());
+            ps.setString(3, variante.getSku());
+            ps.setInt(4, variante.getStockMinimo());
+            ps.setInt(5, variante.getIdVariante());
+
+            return ps.executeUpdate() == 1;
+        }
+    }
+
+    public boolean desactivar(int idVariante) {
+        try (Connection cn = Conexion.getConnection()) {
+            return desactivar(cn, idVariante);
+        } catch (SQLException e) {
+            throw ErrorSql.traducir(e);
+        }
+    }
+
+    boolean desactivar(Connection cn, int idVariante)
+            throws SQLException {
+
+        if (idVariante <= 0) {
+            throw new IllegalArgumentException(
+                    "El ID de la variante debe ser válido.");
+        }
+
+        try (PreparedStatement ps = cn.prepareStatement(SQL_DESACTIVAR)) {
+            ps.setInt(1, idVariante);
+            return ps.executeUpdate() == 1;
+        }
+    }
+
+    private static void validarVariante(VarianteProducto variante) {
+        if (variante == null) {
+            throw new IllegalArgumentException(
+                    "La variante no puede ser nula.");
+        }
+
+        if (variante.getProducto() == null
+                || variante.getProducto().getIdProducto() <= 0) {
+            throw new IllegalArgumentException(
+                    "La variante debe estar asociada a un producto válido.");
         }
     }
 
@@ -139,8 +260,7 @@ public class VarianteDao {
 
             if (ps.executeUpdate() != 1) {
                 throw new SQLException(
-                        "No existe la variante que se intenta reponer."
-                );
+                        "No existe la variante que se intenta reponer.");
             }
         }
     }
@@ -148,8 +268,7 @@ public class VarianteDao {
     private static void validarCantidad(int cantidad) {
         if (cantidad <= 0) {
             throw new IllegalArgumentException(
-                    "La cantidad debe ser mayor que 0."
-            );
+                    "La cantidad debe ser mayor que 0.");
         }
     }
 
