@@ -1,15 +1,75 @@
 <!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
--->
 <html lang="es">
-    <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-        <h1>Gestión de Ventas Sileliz - Pruebas UTF-8: ñ, á, é, í, ó, ú</h1>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Inicio - Gestión de Ventas Sileliz</title>
+    <link rel="icon" href="img/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="img/favicon-192.png" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <header>
+        <h1>Sistema de Ventas - Sileliz</h1>
+        <nav>
+            <ul>
+                <!-- layout.js arma el menú según el rol -->
+            </ul>
+        </nav>
+    </header>
+
+    <main id="contenido-principal">
+        <h2>Inicio</h2>
+        <p class="text-muted" id="fecha-resumen">Resumen del día</p>
+
+        <p id="mensaje" class="alert alert-danger" role="alert" hidden></p>
+
+        <section class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3" aria-label="Resumen del día">
+            <div class="col">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <p class="card-subtitle text-muted mb-2">Ventas del día</p>
+                        <p class="display-6 mb-1" id="valor-ventas">-</p>
+                        <p class="small text-muted mb-0" id="nota-anuladas"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <p class="card-subtitle text-muted mb-2">Total del día</p>
+                        <p class="display-6 mb-0" id="valor-total">-</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <p class="card-subtitle text-muted mb-2">Clientes</p>
+                        <p class="display-6 mb-0" id="valor-clientes">-</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <p class="card-subtitle text-muted mb-2">Stock bajo</p>
+                        <p class="display-6 mb-1" id="valor-stock">-</p>
+                        <a href="productos.html" id="enlace-stock" class="small" hidden>Ver productos</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Sistema Ventas - Sileliz</p>
+    </footer>
+
+    <script src="lib/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/index.js"></script>
+    <script src="js/layout.js"></script>
+</body>
 </html>
