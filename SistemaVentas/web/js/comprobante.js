@@ -1,113 +1,115 @@
 /**
- * comprobante.html (tarea 12 de Cesia). Se abre como comprobante.html?id=15
- * Pide API.get('api/ventas/15') y dibuja el comprobante interno con textContent.
- * Respuesta (Luz, PR #30):
- *   { venta: {idVenta, serie, numero, fechaHora, metodoPago, baseImponible, descuento,
- *             igv, total, estado, detalles:[{descripcion, cantidad, precioUnitario}]},
- *     cliente: "María ..." | "Varios", dniCliente (no viene si es "Varios"), vendedor }
- * Para probar sin datos reales: comprobante.html?mock=1 (usa mock/venta.json).
+ * comprobante.html (tarea 12 de Cesia). Se abre como comprobante.html?id=5
+ * Pide API.get('api/ventas/5') y dibuja el comprobante interno con textContent.
+ * Todo va dentro de una función para no chocar con los nombres globales de layout.js.
+ * Los totales se muestran tal cual vienen del servidor (nunca se recalculan aquí).
  */
+(function () {
+    // Datos de la tienda. PENDIENTE: dirección y teléfono (pedirlos a Rafael, el dueño).
+    const TIENDA = {
+        nombre: 'Sileliz.mas - Moda en tallas grandes',
+        direccion: 'Dirección: por confirmar',
+        telefono: 'Teléfono: por confirmar'
+    };
 
-// Datos de la tienda (RF-16). PENDIENTE: confirmar con el dueño y reemplazar los textos.
-const TIENDA = {
-    nombre: 'Sileliz.mas - Más que una talla',
-    ruc: 'RUC: por confirmar',
-    direccion: 'Dirección: por confirmar',
-    telefono: 'Teléfono: por confirmar'
-};
+    const METODOS_PAGO = {
+        EFECTIVO: 'Efectivo', YAPE: 'Yape', PLIN: 'Plin',
+        TARJETA: 'Tarjeta', TRANSFERENCIA: 'Transferencia'
+    };
 
-const METODOS_PAGO = {
-    EFECTIVO: 'Efectivo', YAPE: 'Yape', PLIN: 'Plin',
-    TARJETA: 'Tarjeta', TRANSFERENCIA: 'Transferencia'
-};
+    const porId = (id) => document.getElementById(id);
 
-const $ = (id) => document.getElementById(id);
+    document.addEventListener('DOMContentLoaded', cargarComprobante);
 
-document.addEventListener('DOMContentLoaded', cargarComprobante);
-
-async function cargarComprobante() {
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id');
-    const usarMock = params.get('mock') === '1';
-
-    if (!usarMock && !/^\d+$/.test(id || '')) {
-        mostrarMensaje('Falta el número de la venta. Ábrala desde Ventas realizadas.');
-        return;
+    async function cargarComprobante() {
+        const id = new URLSearchParams(window.location.search).get('id');
+        if (!/^\d+$/.test(id || '')) {
+            mostrarMensaje('No se indicó la venta.');
+            return;
+        }
+        try {
+            const datos = await API.get('api/ventas/' + id);
+            if (!datos) return;             // sin sesión: api.js ya mandó a login.html
+            pintar(datos);
+        } catch (error) {
+            mostrarMensaje(error.message);  // 404, 403 o 400: el mensaje viene del servidor
+        }
     }
 
-    try {
-        const c = await API.get(usarMock ? 'mock/venta.json' : 'api/ventas/' + id);
-        if (!c) return;                 // sin sesión: api.js ya mandó a login.html
-        pintar(c);
-    } catch (error) {
-        mostrarMensaje(error.message);  // 404 o 403: el mensaje viene del servidor
-    }
-}
+    function pintar(c) {
+        const v = c.venta;
 
-function pintar(c) {
-    const v = c.venta;
+        porId('tienda-nombre').textContent = TIENDA.nombre;
+        porId('tienda-direccion').textContent = TIENDA.direccion;
+        porId('tienda-telefono').textContent = TIENDA.telefono;
 
-    $('tienda-nombre').textContent = TIENDA.nombre;
-    $('tienda-ruc').textContent = TIENDA.ruc;
-    $('tienda-direccion').textContent = TIENDA.direccion;
-    $('tienda-telefono').textContent = TIENDA.telefono;
+        porId('numero').textContent = v.serie + '-' + String(v.numero).padStart(6, '0');
+        porId('fecha').textContent = fechaHora(v.fechaHora);
+        porId('cliente').textContent = c.cliente;
+        porId('dni').textContent = c.dniCliente ?? '—';
+        porId('vendedor').textContent = c.vendedor;
+        porId('pago').textContent = METODOS_PAGO[v.metodoPago] || v.metodoPago;
 
-    $('numero').textContent = v.serie + '-' + String(v.numero).padStart(6, '0');
-    $('aviso-anulada').hidden = v.estado !== 'ANULADA';
-    $('fecha').textContent = fechaHora(v.fechaHora);
-    $('cliente').textContent = c.cliente;
-    $('dni').textContent = c.dniCliente ?? '—';
-    $('vendedor').textContent = c.vendedor;
-    $('pago').textContent = METODOS_PAGO[v.metodoPago] || v.metodoPago;
+        // Venta anulada: sello rojo y motivo (solo viene si está anulada)
+        if (v.estado === 'ANULADA') {
+            porId('bloque-anulada').hidden = false;
+            porId('motivo').textContent = v.motivoAnulacion ? 'Motivo: ' + v.motivoAnulacion : '';
+        }
 
-    const filas = (v.detalles || []).map(d => {
-        const tr = document.createElement('tr');
-        [
-            d.descripcion,
-            { texto: d.cantidad, num: true },
-            { texto: soles(d.precioUnitario), num: true },
-            { texto: soles(subtotal(d)), num: true }
-        ].forEach(celda => {
-            const td = document.createElement('td');
-            if (typeof celda === 'object') {
-                td.textContent = celda.texto;
-                td.classList.add('num');
-            } else {
-                td.textContent = celda;
-            }
-            tr.appendChild(td);
+        const filas = (v.detalles || []).map(d => {
+            const tr = document.createElement('tr');
+            [
+                d.descripcion,
+                { texto: d.cantidad },
+                { texto: soles(d.precioUnitario) },
+                { texto: soles(importe(d)) }
+            ].forEach(celda => {
+                const td = document.createElement('td');
+                if (typeof celda === 'object') {
+                    td.textContent = celda.texto;
+                    td.classList.add('num');
+                } else {
+                    td.textContent = celda;
+                }
+                tr.appendChild(td);
+            });
+            return tr;
         });
-        return tr;
-    });
-    $('detalle').replaceChildren(...filas);
+        porId('detalle').replaceChildren(...filas);
 
-    $('base').textContent = soles(v.baseImponible);
-    $('descuento').textContent = soles(v.descuento);
-    $('igv').textContent = soles(v.igv);
-    $('total').textContent = soles(v.total);
+        // La fila de descuento solo se muestra si hubo descuento
+        const hayDescuento = Number(v.descuento) > 0;
+        porId('fila-descuento-t').hidden = !hayDescuento;
+        porId('descuento').hidden = !hayDescuento;
+        porId('descuento').textContent = '- ' + soles(v.descuento);
 
-    $('comprobante').hidden = false;
-    $('btn-imprimir').hidden = false;
-    $('btn-imprimir').addEventListener('click', () => window.print());
-}
+        porId('base').textContent = soles(v.baseImponible);
+        porId('igv').textContent = soles(v.igv);
+        porId('total').textContent = soles(v.total);
 
-function mostrarMensaje(texto) {
-    $('mensaje').textContent = texto;
-    $('mensaje').hidden = false;
-}
+        porId('comprobante').hidden = false;
+        porId('btn-imprimir').hidden = false;
+        porId('btn-imprimir').addEventListener('click', () => window.print());
+    }
 
-/** Subtotal de una línea = precio x cantidad (solo para mostrar, en centavos). */
-function subtotal(d) {
-    return Math.round(Number(d.precioUnitario) * 100) * Number(d.cantidad) / 100;
-}
+    function mostrarMensaje(texto) {
+        porId('mensaje').textContent = texto;
+        porId('mensaje').hidden = false;
+    }
 
-/** 209.7 -> "S/ 209.70" */
-function soles(valor) {
-    return 'S/ ' + Number(valor || 0).toFixed(2);
-}
+    /** Importe de una línea = cantidad x precio (solo para mostrar, en céntimos). */
+    function importe(d) {
+        return Math.round(Number(d.precioUnitario) * 100) * Number(d.cantidad) / 100;
+    }
 
-/** "2026-11-07T15:42:10" -> "07/11/2026 15:42" */
-function fechaHora(iso) {
-    const [a, m, d] = String(iso).substring(0, 10).split('-');
-    return d + '/' + m + '/' + a + ' ' + String(iso).substring(11, 16);
-}
+    /** 209.7 -> "S/ 209.70" */
+    function soles(valor) {
+        return 'S/ ' + Number(valor || 0).toFixed(2);
+    }
+
+    /** "2026-11-05T16:30" (con o sin segundos) -> "05/11/2026 16:30" */
+    function fechaHora(iso) {
+        const [a, m, d] = String(iso).substring(0, 10).split('-');
+        return d + '/' + m + '/' + a + ' ' + String(iso).substring(11, 16);
+    }
+})();

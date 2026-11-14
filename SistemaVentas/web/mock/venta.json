@@ -1,29 +1,42 @@
 {
   "venta": {
-    "idVenta": 15,
+    "idVenta": 5,
     "serie": "B001",
-    "numero": 15,
-    "fechaHora": "2026-11-12T15:42:10",
-    "metodoPago": "YAPE",
-    "baseImponible": 177.12,
-    "descuento": 0,
-    "igv": 31.88,
-    "total": 209,
-    "estado": "EMITIDA",
+    "numero": 5,
+    "fechaHora": "2026-11-05T16:30",
+    "idCliente": 3,
+    "idUsuario": 11,
     "detalles": [
       {
-        "descripcion": "Blusa manga larga - Talla 2XL - Negro",
-        "cantidad": 2,
-        "precioUnitario": 59.5
+        "idDetalle": 7,
+        "idVariante": 11,
+        "descripcion": "Polo básico 2XL Negro",
+        "cantidad": 1,
+        "precioUnitario": 34.9
       },
       {
-        "descripcion": "Pantalón jean - Talla 3XL - Azul",
+        "idDetalle": 8,
+        "idVariante": 26,
+        "descripcion": "Jean clásico 2XL Azul",
         "cantidad": 1,
-        "precioUnitario": 90
+        "precioUnitario": 139.9
+      },
+      {
+        "idDetalle": 9,
+        "idVariante": 32,
+        "descripcion": "Jean wide leg 2XL Azul",
+        "cantidad": 1,
+        "precioUnitario": 159.9
       }
-    ]
+    ],
+    "baseImponible": 255.28,
+    "descuento": 33.47,
+    "igv": 45.95,
+    "total": 301.23,
+    "metodoPago": "TARJETA",
+    "estado": "EMITIDA"
   },
-  "cliente": "María Elena Castillo Ríos",
-  "dniCliente": "70000001",
-  "vendedor": "Valeria Vendedora"
+  "cliente": "Carmen Quispe Lazo",
+  "dniCliente": "70000003",
+  "vendedor": "Sofía Administradora"
 }

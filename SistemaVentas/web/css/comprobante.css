@@ -42,3 +42,20 @@
     .comprobante { border: none; max-width: 100%; padding: 0; }
     .logo-comprobante { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* Venta anulada: sello rojo y motivo */
+.sello {
+    display: inline-block;
+    margin: .5rem 0 0;
+    padding: .1rem 1rem;
+    border: 3px solid var(--color-alerta);
+    border-radius: .25rem;
+    color: var(--color-alerta);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    transform: rotate(-4deg);
+}
+.motivo { color: var(--color-alerta); font-size: .85rem; margin: .25rem 0 0; }
+
+.nota-igv { font-size: .8rem; color: #555; text-align: right; margin: 0; }
