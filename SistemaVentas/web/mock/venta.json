@@ -1,0 +1,29 @@
+{
+  "venta": {
+    "idVenta": 15,
+    "serie": "B001",
+    "numero": 15,
+    "fechaHora": "2026-11-12T15:42:10",
+    "metodoPago": "YAPE",
+    "baseImponible": 177.12,
+    "descuento": 0,
+    "igv": 31.88,
+    "total": 209,
+    "estado": "EMITIDA",
+    "detalles": [
+      {
+        "descripcion": "Blusa manga larga - Talla 2XL - Negro",
+        "cantidad": 2,
+        "precioUnitario": 59.5
+      },
+      {
+        "descripcion": "Pantalón jean - Talla 3XL - Azul",
+        "cantidad": 1,
+        "precioUnitario": 90
+      }
+    ]
+  },
+  "cliente": "María Elena Castillo Ríos",
+  "dniCliente": "70000001",
+  "vendedor": "Valeria Vendedora"
+}
