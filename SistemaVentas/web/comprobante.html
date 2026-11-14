@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Comprobante - Gestión de Ventas Sileliz</title>
+    <link rel="icon" href="img/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="img/favicon-192.png" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/comprobante.css">
+</head>
+<body>
+    <header>
+        <h1>Sistema de Ventas - Sileliz</h1>
+        <nav>
+            <ul>
+                <!-- layout.js arma el menú según el rol -->
+            </ul>
+        </nav>
+    </header>
+
+    <main id="contenido-principal">
+        <p id="mensaje" class="alert alert-danger d-print-none" role="alert" hidden></p>
+
+        <article id="comprobante" class="comprobante" hidden>
+            <section class="tienda text-center">
+                <img src="img/logo.png" alt="Sileliz.mas" class="logo-comprobante">
+                <p class="tienda-nombre" id="tienda-nombre"></p>
+                <p class="tienda-dato" id="tienda-direccion"></p>
+                <p class="tienda-dato" id="tienda-telefono"></p>
+            </section>
+
+            <hr>
+
+            <section class="text-center">
+                <p class="titulo-doc">COMPROBANTE INTERNO</p>
+                <p class="numero-doc" id="numero"></p>
+                <div class="sello-anulada" id="bloque-anulada" hidden>
+                    <p class="sello" >ANULADA</p>
+                    <p class="motivo" id="motivo"></p>
+                </div>
+            </section>
+
+            <dl class="datos">
+                <dt>Fecha</dt><dd id="fecha"></dd>
+                <dt>Cliente</dt><dd id="cliente"></dd>
+                <dt>DNI</dt><dd id="dni"></dd>
+                <dt>Vendedor</dt><dd id="vendedor"></dd>
+                <dt>Pago</dt><dd id="pago"></dd>
+            </dl>
+
+            <div class="table-responsive">
+                <table class="table table-sm tabla-detalle">
+                    <thead>
+                        <tr>
+                            <th>Descripción</th>
+                            <th class="num">Cant.</th>
+                            <th class="num">P. unit.</th>
+                            <th class="num">Importe</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detalle"></tbody>
+                </table>
+            </div>
+
+            <!-- Totales: los calcula el servidor; aquí solo se les da formato -->
+            <dl class="totales">
+                <dt id="fila-descuento-t" hidden>Descuento</dt><dd id="descuento" hidden></dd>
+                <dt>Op. gravada</dt><dd id="base"></dd>
+                <dt>IGV (18 %)</dt><dd id="igv"></dd>
+                <dt class="total-titulo">TOTAL</dt><dd class="total-valor" id="total"></dd>
+            </dl>
+            <p class="nota-igv">Precios con IGV incluido.</p>
+
+            <p class="leyenda">Comprobante interno, sin valor tributario. No válido como boleta ni factura.</p>
+        </article>
+
+        <div class="acciones d-print-none">
+            <button type="button" id="btn-imprimir" class="btn btn-dark" hidden>Imprimir</button>
+            <a href="venta-nueva.html" class="btn btn-outline-dark">Nueva venta</a>
+            <a href="ventas.html" class="btn btn-outline-secondary">Ver ventas</a>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Sistema Ventas - Sileliz</p>
+    </footer>
+
+    <script src="lib/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/comprobante.js"></script>
+</body>
+</html>

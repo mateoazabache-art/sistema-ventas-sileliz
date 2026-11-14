@@ -1,0 +1,42 @@
+{
+  "venta": {
+    "idVenta": 5,
+    "serie": "B001",
+    "numero": 5,
+    "fechaHora": "2026-11-05T16:30",
+    "idCliente": 3,
+    "idUsuario": 11,
+    "detalles": [
+      {
+        "idDetalle": 7,
+        "idVariante": 11,
+        "descripcion": "Polo básico 2XL Negro",
+        "cantidad": 1,
+        "precioUnitario": 34.9
+      },
+      {
+        "idDetalle": 8,
+        "idVariante": 26,
+        "descripcion": "Jean clásico 2XL Azul",
+        "cantidad": 1,
+        "precioUnitario": 139.9
+      },
+      {
+        "idDetalle": 9,
+        "idVariante": 32,
+        "descripcion": "Jean wide leg 2XL Azul",
+        "cantidad": 1,
+        "precioUnitario": 159.9
+      }
+    ],
+    "baseImponible": 255.28,
+    "descuento": 33.47,
+    "igv": 45.95,
+    "total": 301.23,
+    "metodoPago": "TARJETA",
+    "estado": "EMITIDA"
+  },
+  "cliente": "Carmen Quispe Lazo",
+  "dniCliente": "70000003",
+  "vendedor": "Sofía Administradora"
+}

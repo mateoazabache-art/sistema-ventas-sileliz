@@ -1,0 +1,61 @@
+/* comprobante.css - solo lo propio del comprobante. Bootstrap pone el resto. */
+
+.comprobante {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 1rem;
+    border: 1px dashed #999;
+    background: #fff;
+}
+
+.logo-comprobante { height: 90px; width: auto; background: #000; border-radius: .25rem; }
+.tienda p { margin: 0; }
+.tienda-nombre { font-weight: 700; margin-top: .5rem !important; }
+.tienda-dato { font-size: .85rem; color: #555; }
+
+.titulo-doc { font-weight: 700; margin: 0; letter-spacing: .5px; }
+.numero-doc { font-size: 1.4rem; font-weight: 700; margin: 0; }
+.anulada { color: var(--color-alerta); font-weight: 700; margin: .25rem 0 0; }
+
+.datos, .totales {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: .15rem .75rem;
+    margin: .75rem 0;
+    font-size: .9rem;
+}
+.datos dt, .totales dt { font-weight: 600; }
+.datos dd, .totales dd { margin: 0; }
+.totales dd { text-align: right; }
+
+.tabla-detalle { font-size: .85rem; }
+.tabla-detalle .num { text-align: right; white-space: nowrap; }
+
+.total-titulo, .total-valor { font-size: 1.1rem; border-top: 1px solid #000; padding-top: .25rem; }
+
+.leyenda { text-align: center; font-size: .8rem; font-style: italic; margin: 1rem 0 0; }
+
+.acciones { max-width: 480px; margin: 1rem auto 0; display: flex; gap: .5rem; justify-content: center; }
+
+@media print {
+    @page { size: A4; margin: 1.5cm; }
+    .comprobante { border: none; max-width: 100%; padding: 0; }
+    .logo-comprobante { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* Venta anulada: sello rojo y motivo */
+.sello {
+    display: inline-block;
+    margin: .5rem 0 0;
+    padding: .1rem 1rem;
+    border: 3px solid var(--color-alerta);
+    border-radius: .25rem;
+    color: var(--color-alerta);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    transform: rotate(-4deg);
+}
+.motivo { color: var(--color-alerta); font-size: .85rem; margin: .25rem 0 0; }
+
+.nota-igv { font-size: .8rem; color: #555; text-align: right; margin: 0; }
