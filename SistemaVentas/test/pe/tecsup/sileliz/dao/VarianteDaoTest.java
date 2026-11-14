@@ -249,6 +249,51 @@ public class VarianteDaoTest {
         assertFalse(dao.desactivar(cn, 999999));
     }
 
+    @Test
+    public void insertarGuardaElStockMinimoQueSeEnvia() throws SQLException {
+        // Con 2 no se notaba: es el valor por defecto de la tabla
+        VarianteProducto variante = nuevaVariante();
+        variante.setStockMinimo(5);
+
+        VarianteProducto resultado = dao.insertar(cn, variante);
+
+        assertEquals(5, resultado.getStockMinimo());
+        assertEquals(5, dao.buscarPorId(cn, resultado.getIdVariante()).get().getStockMinimo());
+        assertEquals(0, resultado.getStock());     // el stock siempre nace en 0 (regla del stock)
+    }
+
+    @Test
+    public void listarPorProductoTraeActivasEInactivas() throws SQLException {
+        int idProducto = idProductoPorCodigo("P-001");
+        try (PreparedStatement ps = cn.prepareStatement(
+                "UPDATE variante_producto SET activo = FALSE WHERE sku = ?")) {
+            ps.setString(1, "P-001-XL-BLA");
+            ps.executeUpdate();
+        }
+
+        List<VarianteProducto> lista = dao.listarPorProducto(cn, idProducto);
+
+        assertEquals(3, lista.size());
+        assertEquals(1, lista.stream().filter(v -> !v.isActivo()).count());
+        assertTrue(lista.stream().allMatch(v -> v.getProducto().getIdProducto() == idProducto));
+    }
+
+    @Test
+    public void listarPorProductoIncluyeLaVarianteNueva() throws SQLException {
+        int idProducto = idProductoPorCodigo("P-001");
+        dao.insertar(cn, nuevaVariante());
+
+        List<VarianteProducto> lista = dao.listarPorProducto(cn, idProducto);
+
+        assertEquals(4, lista.size());
+        assertEquals("TEST-VAR-INSERTAR", lista.get(3).getSku());   // en orden de registro
+    }
+
+    @Test
+    public void listarPorProductoInexistenteDevuelveListaVacia() throws SQLException {
+        assertTrue(dao.listarPorProducto(cn, 999999).isEmpty());
+    }
+
     private VarianteProducto nuevaVariante() throws SQLException {
         Producto producto = new Producto();
         producto.setIdProducto(idProductoPorCodigo("P-001"));

@@ -88,6 +88,16 @@ public class VarianteService {
         return exigirVarianteExistente(idVariante);
     }
 
+    /** Variantes de un producto para la pantalla de productos (404 si el producto no existe). */
+    public List<VarianteProducto> listarPorProducto(int idProducto) {
+        if (idProducto <= 0) {
+            throw new DatoInvalidoException("El ID del producto debe ser un número positivo.");
+        }
+        productoDao.buscarPorId(idProducto).orElseThrow(() -> new NoEncontradoException(
+                "No se encontró el producto con ID " + idProducto + "."));
+        return varianteDao.listarPorProducto(idProducto);
+    }
+
     public List<VarianteProducto> buscarPorTexto(String texto) {
         return varianteDao.buscarPorTexto(texto);
     }

@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Productos - Sileliz</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Productos - Gestión de Ventas Sileliz</title>
     <link rel="icon" href="img/favicon-32.png" sizes="32x32" type="image/png">
     <link rel="icon" href="img/favicon-192.png" sizes="192x192" type="image/png">
     <link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css">
@@ -15,9 +14,7 @@
         <h1>Sistema de Ventas - Sileliz</h1>
         <nav>
             <ul>
-                <li><a href="index.html">Inicio</a></li>
-                <li><a href="#">Ventas</a></li>
-                <li><a href="productos.html">Productos</a></li>
+                <!-- layout.js arma el menú según el rol -->
             </ul>
         </nav>
     </header>
@@ -25,145 +22,179 @@
     <main id="contenido-principal">
         <h2>Gestión de Productos</h2>
 
-        <!-- Formulario de productos -->
-        <section class="formulario-container">
-            <h3>Registrar producto</h3>
+        <!-- Mensajes de éxito y de error -->
+        <div id="mensaje-ok" class="alert alert-success d-none" role="status"></div>
+        <div id="mensaje-error" class="alert alert-danger d-none" role="alert"></div>
 
-            <form id="form-producto" novalidate>
-                <input type="hidden" id="id-producto">
+        <!-- Buscador y filtro -->
+        <form id="formBuscar" class="row g-2 mb-3">
+            <div class="col-12 col-md-5">
+                <label for="txtBuscar" class="visually-hidden">Buscar por nombre o código</label>
+                <input type="text" id="txtBuscar" class="form-control" maxlength="100"
+                       placeholder="Buscar por nombre o código...">
+            </div>
+            <div class="col-12 col-md-3">
+                <label for="selFiltroCategoria" class="visually-hidden">Categoría</label>
+                <select id="selFiltroCategoria" class="form-select">
+                    <option value="0">Todas las categorías</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Buscar</button>
+            </div>
+            <div class="col-6 col-md-2 text-end">
+                <button type="button" id="btnNuevo" class="btn btn-success w-100 d-none">+ Nuevo producto</button>
+            </div>
+        </form>
 
-                <div class="form-group">
-                    <label for="codigo">Código:</label>
-                    <input type="text" id="codigo" name="codigo"
-                           maxlength="20" required>
-                </div>
+        <!-- Formulario de producto: alta y edición (solo administrador) -->
+        <section id="seccionProducto" class="card mb-4 d-none">
+            <div class="card-body">
+                <h3 id="tituloProducto" class="h5 card-title">Nuevo producto</h3>
+                <div id="mensaje-producto" class="alert alert-danger d-none" role="alert"></div>
 
-                <div class="form-group">
-                    <label for="nombre">Nombre:</label>
-                    <input type="text" id="nombre" name="nombre"
-                           maxlength="100" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="descripcion">Descripción:</label>
-                    <textarea id="descripcion" name="descripcion"
-                              maxlength="250"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="categoria">Categoría:</label>
-                    <select id="categoria" name="categoria" required>
-                        <option value="">Cargando categorías...</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="precio">Precio de venta (S/):</label>
-                    <input type="number" id="precio" name="precio"
-                           min="0.01" step="0.01" required>
-                </div>
-
-                <!-- Variantes -->
-                <section class="variantes-container">
-                    <h3>Variantes del producto</h3>
-                    <p>Registra las tallas, colores y stock disponibles.</p>
-
-                    <div class="tabla-container">
-                        <table class="tabla-datos">
-                            <thead>
-                                <tr>
-                                    <th>Talla</th>
-                                    <th>Color</th>
-                                    <th>SKU</th>
-                                    <th>Stock</th>
-                                    <th>Stock mínimo</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabla-variantes">
-                                <!-- Las variantes se agregarán con JavaScript -->
-                            </tbody>
-                        </table>
+                <form id="formProducto" class="row g-3" novalidate>
+                    <div class="col-12 col-md-3">
+                        <label for="codigo" class="form-label">Código *</label>
+                        <input type="text" id="codigo" class="form-control" maxlength="20" autocomplete="off"
+                               placeholder="Ej. P-021">
+                        <div class="invalid-feedback" id="error-codigo"></div>
                     </div>
-
-                    <button type="button" id="btn-agregar-variante"
-                            class="btn btn-secondary">
-                        Agregar variante
-                    </button>
-                </section>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">
-                        Guardar producto
-                    </button>
-
-                    <button type="reset" class="btn btn-secondary">
-                        Limpiar
-                    </button>
-                </div>
-            </form>
+                    <div class="col-12 col-md-5">
+                        <label for="nombre" class="form-label">Nombre *</label>
+                        <input type="text" id="nombre" class="form-control" maxlength="100" autocomplete="off">
+                        <div class="invalid-feedback" id="error-nombre"></div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label for="categoria" class="form-label">Categoría *</label>
+                        <select id="categoria" class="form-select">
+                            <option value="">Seleccione...</option>
+                        </select>
+                        <div class="invalid-feedback" id="error-categoria"></div>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <input type="text" id="descripcion" class="form-control" maxlength="250" autocomplete="off">
+                        <div class="invalid-feedback" id="error-descripcion"></div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label for="precioVenta" class="form-label">Precio de venta (S/) *</label>
+                        <input type="number" id="precioVenta" class="form-control" min="0.01" step="0.01"
+                               inputmode="decimal">
+                        <div class="invalid-feedback" id="error-precioVenta"></div>
+                    </div>
+                    <div class="col-12 d-flex gap-2">
+                        <button type="submit" id="btnGuardarProducto" class="btn btn-primary">Guardar</button>
+                        <button type="button" id="btnCancelarProducto" class="btn btn-outline-secondary">Cancelar</button>
+                    </div>
+                    <p class="text-muted small mb-0">
+                        Los campos con * son obligatorios. Después de guardar se agregan las tallas y colores.
+                    </p>
+                </form>
+            </div>
         </section>
 
-        <!-- Listado de productos -->
-        <section class="tabla-container">
-            <h3>Listado de productos</h3>
-
-            <div class="filtros-container">
-                <div class="form-group">
-                    <label for="buscar-producto">Buscar producto:</label>
-                    <input type="search" id="buscar-producto"
-                           placeholder="Código o nombre">
-                </div>
-
-                <div class="form-group">
-                    <label for="filtro-categoria">Categoría:</label>
-                    <select id="filtro-categoria">
-                        <option value="">Todas las categorías</option>
-                    </select>
-                </div>
-            </div>
-
-            <table class="tabla-datos">
+        <!-- Tabla de productos -->
+        <div class="table-responsive">
+            <table class="table table-striped align-middle" id="tablaProductos">
                 <thead>
                     <tr>
                         <th>Código</th>
                         <th>Nombre</th>
-                        <th>Categoría</th>
-                        <th>Precio</th>
-                        <th>Variantes</th>
+                        <th class="d-none d-md-table-cell">Categoría</th>
+                        <th class="text-end">Precio</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
-
-                <tbody id="tabla-productos">
-                    <!-- Los productos se cargarán desde la API -->
-                </tbody>
+                <tbody></tbody>
             </table>
+        </div>
 
-            <div class="paginacion" id="paginacion">
-                <button type="button" id="btn-anterior"
-                        class="btn btn-secondary">
-                    Anterior
-                </button>
+        <!-- Paginación -->
+        <nav aria-label="Páginas de productos">
+            <ul id="paginacion" class="pagination justify-content-center flex-wrap mt-3 mb-1"></ul>
+        </nav>
+        <p id="infoPaginacion" class="text-center text-muted small"></p>
 
-                <span id="pagina-actual">Página 1</span>
+        <!-- Variantes del producto elegido -->
+        <section id="seccionVariantes" class="card mt-4 mb-5 d-none">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                    <div>
+                        <h3 id="tituloVariantes" class="h5 card-title mb-1">Tallas y colores</h3>
+                        <p class="text-muted small mb-0">
+                            El stock lo suman los ingresos de mercadería y lo descuentan las ventas;
+                            aquí no se escribe a mano.
+                        </p>
+                    </div>
+                    <button type="button" id="btnCerrarVariantes" class="btn btn-sm btn-outline-secondary">Cerrar</button>
+                </div>
 
-                <button type="button" id="btn-siguiente"
-                        class="btn btn-secondary">
-                    Siguiente
-                </button>
+                <div id="mensaje-variante" class="alert alert-danger d-none mt-3" role="alert"></div>
+
+                <div class="table-responsive mt-3">
+                    <table class="table table-sm align-middle" id="tablaVariantes">
+                        <thead>
+                            <tr>
+                                <th>Talla</th>
+                                <th>Color</th>
+                                <th>SKU</th>
+                                <th class="text-end">Stock</th>
+                                <th class="text-end">Mínimo</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <!-- Alta y edición de variante (solo administrador y producto activo) -->
+                <form id="formVariante" class="row g-2 align-items-end d-none" novalidate>
+                    <h4 id="tituloFormVariante" class="h6 col-12 mb-0 mt-2">Agregar talla y color</h4>
+                    <div class="col-6 col-md-2">
+                        <label for="talla" class="form-label small">Talla *</label>
+                        <input type="text" id="talla" class="form-control form-control-sm" maxlength="10"
+                               autocomplete="off" placeholder="Ej. XL">
+                        <div class="invalid-feedback" id="error-talla"></div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label for="color" class="form-label small">Color *</label>
+                        <input type="text" id="color" class="form-control form-control-sm" maxlength="30"
+                               autocomplete="off" placeholder="Ej. Negro">
+                        <div class="invalid-feedback" id="error-color"></div>
+                    </div>
+                    <div class="col-8 col-md-3">
+                        <label for="sku" class="form-label small">SKU *</label>
+                        <input type="text" id="sku" class="form-control form-control-sm" maxlength="30"
+                               autocomplete="off">
+                        <div class="invalid-feedback" id="error-sku"></div>
+                    </div>
+                    <div class="col-4 col-md-1">
+                        <label for="stockMinimo" class="form-label small">Mínimo *</label>
+                        <input type="number" id="stockMinimo" class="form-control form-control-sm" min="0"
+                               step="1" value="2" inputmode="numeric">
+                        <div class="invalid-feedback" id="error-stockMinimo"></div>
+                    </div>
+                    <div class="col-12 col-md-3 d-flex gap-2">
+                        <button type="submit" id="btnGuardarVariante" class="btn btn-sm btn-primary">Agregar</button>
+                        <button type="button" id="btnCancelarVariante" class="btn btn-sm btn-outline-secondary d-none">Cancelar</button>
+                    </div>
+                </form>
             </div>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2026 Sistema de Ventas - Sileliz</p>
+        <p>&copy; 2026 Sistema Ventas - Sileliz</p>
     </footer>
 
+    <!-- Scripts del proyecto -->
     <script src="lib/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="js/api.js"></script>
+    <script src="js/layout.js"></script>
     <script src="js/validaciones.js"></script>
     <script src="js/productos.js"></script>
-    <script src="js/layout.js"></script>
 </body>
 </html>

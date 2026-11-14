@@ -48,6 +48,9 @@ public class ProductoServlet extends HttpServlet {
 
                 Json.responder(resp, 200,
                         servicio.listarPaginado(pagina, tam, texto, idCategoria));
+            } else if (pathInfo.matches("/\\d+/variantes")) {
+                int idProducto = Integer.parseInt(pathInfo.split("/")[1]);
+                Json.responder(resp, 200, varianteServicio.listarPorProducto(idProducto));
             } else {
                 int id = Integer.parseInt(pathInfo.substring(1));
                 Json.responder(resp, 200, servicio.obtenerPorId(id));
