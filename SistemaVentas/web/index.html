@@ -20,16 +20,16 @@
     </header>
 
     <main id="contenido-principal">
-        <h2>Inicio</h2>
+        <h2 id="saludo">Inicio</h2>
         <p class="text-muted" id="fecha-resumen">Resumen del día</p>
 
         <p id="mensaje" class="alert alert-danger" role="alert" hidden></p>
 
-        <section class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3" aria-label="Resumen del día">
+        <section class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3 mb-4" aria-label="Resumen del día">
             <div class="col">
                 <div class="card h-100 text-center">
                     <div class="card-body">
-                        <p class="card-subtitle text-muted mb-2">Ventas del día</p>
+                        <p class="card-subtitle text-muted mb-2">Ventas de hoy</p>
                         <p class="display-6 mb-1" id="valor-ventas">-</p>
                         <p class="small text-muted mb-0" id="nota-anuladas"></p>
                     </div>
@@ -38,7 +38,7 @@
             <div class="col">
                 <div class="card h-100 text-center">
                     <div class="card-body">
-                        <p class="card-subtitle text-muted mb-2">Total del día</p>
+                        <p class="card-subtitle text-muted mb-2">Total vendido hoy</p>
                         <p class="display-6 mb-0" id="valor-total">-</p>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
             <div class="col">
                 <div class="card h-100 text-center">
                     <div class="card-body">
-                        <p class="card-subtitle text-muted mb-2">Clientes</p>
+                        <p class="card-subtitle text-muted mb-2">Clientes activos</p>
                         <p class="display-6 mb-0" id="valor-clientes">-</p>
                     </div>
                 </div>
@@ -54,11 +54,22 @@
             <div class="col">
                 <div class="card h-100 text-center">
                     <div class="card-body">
-                        <p class="card-subtitle text-muted mb-2">Stock bajo</p>
+                        <p class="card-subtitle text-muted mb-2">Prendas con stock bajo</p>
                         <p class="display-6 mb-1" id="valor-stock">-</p>
                         <a href="productos.html" id="enlace-stock" class="small" hidden>Ver productos</a>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <section aria-label="Accesos rápidos">
+            <h3 class="h5">Accesos rápidos</h3>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="venta-nueva.html" class="btn btn-dark">Nueva venta</a>
+                <a href="ventas.html" class="btn btn-outline-dark">Ventas realizadas</a>
+                <a href="productos.html" class="btn btn-outline-dark">Productos</a>
+                <a href="clientes.html" class="btn btn-outline-dark">Clientes</a>
+                <a href="reportes.html" id="acceso-reportes" class="btn btn-outline-dark" hidden>Reportes</a>
             </div>
         </section>
     </main>
@@ -69,7 +80,7 @@
 
     <script src="lib/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="js/api.js"></script>
-    <script src="js/index.js"></script>
     <script src="js/layout.js"></script>
+    <script src="js/index.js"></script>
 </body>
 </html>
