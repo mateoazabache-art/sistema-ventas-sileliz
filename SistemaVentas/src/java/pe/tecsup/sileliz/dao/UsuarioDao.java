@@ -1,4 +1,4 @@
-SistemaVentas/test/pe/tecsup/sileliz/servicio/UsuarioServiceTest.java package pe.tecsup.sileliz.dao;
+package pe.tecsup.sileliz.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
