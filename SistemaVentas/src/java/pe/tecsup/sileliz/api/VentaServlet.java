@@ -80,8 +80,9 @@ public class VentaServlet extends HttpServlet {
             // Si no hay sesion, usuarioActual LANZA AutenticacionException (401): nunca devuelve null.
             Usuario u = SesionFilter.usuarioActual(req);
 
-            // PASO 3: toda la logica de negocio vive en el servicio, no aqui.
-            Venta v = servicio.registrar(solicitud, u.getIdPersona());
+            // PASO 3: toda la logica de negocio vive en el servicio, no aqui
+            // (incluido el tope de 10 % de descuento especial para el vendedor).
+            Venta v = servicio.registrar(solicitud, u);
 
             // PASO 4: 201 Created con la venta.
             Json.responder(resp, 201, v);

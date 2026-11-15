@@ -181,6 +181,33 @@ public class VentaServiceTest {
         assertEquals(new BigDecimal("23.30"), v.getIgv());
     }
 
+    // ---------- tope de descuento especial del vendedor (entrevista 14 nov) ----------
+
+    /** Solicitud con descuento PORCENTAJE del valor indicado (3 prendas de la variante 1). */
+    private VentaSolicitud conPorcentaje(String valor) {
+        String json = "{\"metodoPago\":\"EFECTIVO\",\"tipoDescuento\":\"PORCENTAJE\",\"valorDescuento\":" + valor + ","
+                + "\"lineas\":[{\"idVariante\":1,\"cantidad\":3}]}";
+        return new Gson().fromJson(json, VentaSolicitud.class);
+    }
+
+    @Test
+    public void elVendedorPuedeDarHasta10PorCiento() {
+        Venta v = servicio.registrar(conPorcentaje("10"), usuario(5, Rol.VENDEDOR));
+        assertEquals(new BigDecimal("17.97"), v.getDescuento());   // 10 % de 179.70
+        assertEquals(5, v.getIdUsuario());
+    }
+
+    @Test(expected = DatoInvalidoException.class)
+    public void elVendedorNoPuedeDarMasDe10PorCiento() {
+        servicio.registrar(conPorcentaje("10.01"), usuario(5, Rol.VENDEDOR));
+    }
+
+    @Test
+    public void elAdministradorNoTieneTope() {
+        Venta v = servicio.registrar(conPorcentaje("30"), usuario(1, Rol.ADMINISTRADOR));
+        assertEquals(new BigDecimal("53.91"), v.getDescuento());   // 30 % de 179.70
+    }
+
     // ---------- registrar: datos invalidos (no llegan a la base) ----------
 
     @Test(expected = DatoInvalidoException.class)
