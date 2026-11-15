@@ -32,24 +32,27 @@
 
 .filtro input[type="date"] {
     padding: 7px 8px;
-    border: 1px solid #b8c0cc;
+    border: 1px solid var(--bs-border-color, #b8c0cc);
     border-radius: 6px;
     font: inherit;
+    background: var(--bs-body-bg, #fff);
+    color: var(--bs-body-color, #212529);
 }
 
 .pagina-reportes button {
     padding: 8px 14px;
-    border: 1px solid #0056b3;
+    border: 1px solid var(--color-boton);
     border-radius: 6px;
-    background: #0056b3;
-    color: white;
+    background: var(--color-boton);
+    color: var(--color-boton-texto);
     font: inherit;
     cursor: pointer;
 }
 
 .pagina-reportes button.secundario {
-    background: white;
-    color: #0056b3;
+    background: transparent;
+    color: var(--bs-emphasis-color, #000);
+    border-color: var(--bs-emphasis-color, #000);
 }
 
 .pagina-reportes button:disabled {
@@ -59,7 +62,7 @@
 
 .pagina-reportes button:focus-visible,
 .filtro input:focus-visible {
-    outline: 3px solid #ffbf47;
+    outline: 3px solid var(--color-acento);
     outline-offset: 1px;
 }
 
@@ -86,15 +89,15 @@
     flex-direction: column;
     gap: 6px;
     padding: 14px 16px;
-    border: 1px solid #dfe3ea;
-    border-left: 5px solid #0056b3;
+    border: 1px solid var(--bs-border-color, #dfe3ea);
+    border-left: 5px solid var(--color-acento);
     border-radius: 8px;
-    background: #f8fafc;
+    background: var(--bs-tertiary-bg, #f8fafc);
 }
 
 .tarjeta-titulo {
     font-size: 0.85rem;
-    color: #55606e;
+    color: var(--bs-secondary-color, #55606e);
 }
 
 .tarjeta-valor {
@@ -109,7 +112,7 @@
 .nota {
     margin: 8px 0 0;
     font-size: 0.85rem;
-    color: #55606e;
+    color: var(--bs-secondary-color, #55606e);
 }
 
 /* Tablas */
@@ -126,13 +129,13 @@
 .pagina-reportes .tabla-datos th,
 .pagina-reportes .tabla-datos td {
     padding: 8px 10px;
-    border-bottom: 1px solid #e3e7ee;
+    border-bottom: 1px solid var(--bs-border-color, #e3e7ee);
     text-align: left;
     white-space: nowrap;
 }
 
 .pagina-reportes .tabla-datos th {
-    background: #eef2f7;
+    background: var(--bs-tertiary-bg, #eef2f7);
 }
 
 .pagina-reportes .tabla-datos .num {
@@ -142,13 +145,13 @@
 
 .pagina-reportes .tabla-datos td.vacio {
     text-align: center;
-    color: #55606e;
+    color: var(--bs-secondary-color, #55606e);
     padding: 18px;
 }
 
 /* Venta anulada: en rojo y tachado el importe */
 .fila-anulada td {
-    color: #b3261e;
+    color: var(--color-alerta);
 }
 
 .fila-anulada td.num {

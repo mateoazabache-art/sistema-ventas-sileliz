@@ -9,7 +9,26 @@
  *   3. Convierte el <header> en una navbar de Bootstrap que se colapsa en celular.
  *   4. Muestra el nombre y el rol del usuario y el botón "Cerrar sesión".
  * Todo con createElement y textContent (nunca innerHTML con datos).
+ *
+ * Modo oscuro (15 nov): el botón 🌙 / ☀️ pone data-bs-theme="dark" en <html>
+ * (Bootstrap 5.3 lo trae listo) y la elección se recuerda en este navegador.
  */
+
+// Tema guardado: se aplica apenas carga el archivo, antes de armar el menú.
+const CLAVE_TEMA = 'sileliz-tema';
+aplicarTema(leerTemaGuardado());
+
+function leerTemaGuardado() {
+    try {
+        return localStorage.getItem(CLAVE_TEMA) === 'oscuro' ? 'oscuro' : 'claro';
+    } catch (e) {
+        return 'claro';             // sin almacenamiento: tema claro
+    }
+}
+
+function aplicarTema(tema) {
+    document.documentElement.setAttribute('data-bs-theme', tema === 'oscuro' ? 'dark' : 'light');
+}
  
 // Opciones del menú. soloAdmin = solo las ve el ADMINISTRADOR.
 const MENU = [
@@ -17,7 +36,7 @@ const MENU = [
     { texto: 'Nueva venta',       href: 'venta-nueva.html' },
     { texto: 'Ventas realizadas', href: 'ventas.html' },
     { texto: 'Productos',         href: 'productos.html' },
-    { texto: 'Categorías',        href: 'categorias.html' },
+    { texto: 'Categorías',        href: 'categorias.html', soloAdmin: true },   // plan 2.1: el vendedor no gestiona categorías
     { texto: 'Clientes',          href: 'clientes.html' },
     { texto: 'Usuarios',          href: 'usuarios.html', soloAdmin: true },
     { texto: 'Reportes',          href: 'reportes.html', soloAdmin: true },
@@ -95,7 +114,7 @@ function ArmarNavbar(lista) {
     const header = document.querySelector('header');
     if (!header) return;
  
-    header.classList.add('navbar', 'navbar-expand-lg', 'navbar-dark', 'barra-sileliz');
+    header.classList.add('navbar', 'navbar-expand-xl', 'navbar-dark', 'barra-sileliz');   // xl: el menú completo no cabe en menos de 1200 px
  
     const contenedor = document.createElement('div');
     contenedor.className = 'container-fluid';
@@ -130,7 +149,7 @@ function ArmarNavbar(lista) {
     const colapsable = document.createElement('div');
     colapsable.className = 'collapse navbar-collapse';
     colapsable.id = 'menuPrincipal';
-    lista.className = 'navbar-nav me-auto mb-2 mb-lg-0';
+    lista.className = 'navbar-nav me-auto mb-2 mb-xl-0';
     colapsable.appendChild(lista);
  
     contenedor.append(marca, boton, colapsable);
@@ -151,7 +170,7 @@ function MostrarUsuario(sesion) {
  
     if (!elUsuario || !btnLogout) {
         const caja = document.createElement('div');
-        caja.className = 'usuario-sesion d-flex align-items-lg-center flex-column flex-lg-row gap-2';
+        caja.className = 'usuario-sesion d-flex align-items-xl-center flex-column flex-xl-row gap-2';
  
         elUsuario = document.createElement('span');
         elUsuario.id = 'lblUsuarioNombre';
@@ -159,9 +178,17 @@ function MostrarUsuario(sesion) {
         elRol = document.createElement('span');
         elRol.id = 'lblUsuarioRol';
  
+        elRol.className = 'rol-etiqueta';
+
         const etiqueta = document.createElement('span');
         etiqueta.className = 'usuario-etiqueta';
-        etiqueta.append(elUsuario, ' (', elRol, ')');
+        etiqueta.append(elUsuario, elRol);
+
+        const btnTema = document.createElement('button');
+        btnTema.type = 'button';
+        btnTema.id = 'btnTema';
+        btnTema.className = 'btn btn-outline-light btn-sm boton-tema';
+        btnTema.addEventListener('click', CambiarTema);
  
         btnLogout = document.createElement('button');
         btnLogout.type = 'button';
@@ -169,13 +196,39 @@ function MostrarUsuario(sesion) {
         btnLogout.className = 'btn btn-outline-light btn-sm';
         btnLogout.textContent = 'Cerrar sesión';
  
-        caja.append(etiqueta, btnLogout);
+        caja.append(etiqueta, btnTema, btnLogout);
         // Dentro del menú colapsable si existe; si no, al final del header.
         (document.getElementById('menuPrincipal') || header).appendChild(caja);
     }
  
-    elUsuario.textContent = sesion.nombre;
+    // Solo el primer nombre ("Rafael"), para que la barra no se parta en dos líneas
+    elUsuario.textContent = (sesion.nombre || '').trim().split(/\s+/)[0];
+    elUsuario.title = sesion.nombre;
     if (elRol) elRol.textContent = sesion.rolEtiqueta || sesion.rol || 'Usuario';
+    PintarBotonTema();
+}
+
+/** Cambia entre claro y oscuro y lo recuerda en este navegador. */
+function CambiarTema() {
+    const nuevo = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'claro' : 'oscuro';
+    aplicarTema(nuevo);
+    try {
+        localStorage.setItem(CLAVE_TEMA, nuevo);
+    } catch (e) {
+        // sin almacenamiento: el tema dura hasta recargar la página
+    }
+    PintarBotonTema();
+}
+
+/** El botón muestra el modo al que se pasa: 🌙 en claro, ☀️ en oscuro. */
+function PintarBotonTema() {
+    const btn = document.getElementById('btnTema');
+    if (!btn) return;
+    const oscuro = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    btn.textContent = oscuro ? '☀️' : '🌙';
+    const texto = oscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+    btn.title = texto;
+    btn.setAttribute('aria-label', texto);
 }
  
 /** Cerrar sesión: POST api/logout y volver a login.html (aunque falle la red). */
