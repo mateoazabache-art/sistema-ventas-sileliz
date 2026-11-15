@@ -12,7 +12,7 @@
  */
 
 const MINIMO_POR_CANTIDAD = 3;   // igual que DescuentoFactory.MINIMO_POR_CANTIDAD
-const PORCENTAJE_POR_CANTIDAD = 10;
+const PORCENTAJE_POR_CANTIDAD = 15;  // igual que DescuentoFactory.PORCENTAJE_POR_CANTIDAD
 
 // Lo que la página recuerda mientras está abierta
 let cliente = null;              // null = consumidor final (RN-06)

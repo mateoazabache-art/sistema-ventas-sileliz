@@ -8,7 +8,7 @@ import pe.tecsup.sileliz.modelo.DetalleVenta;
 /**
  * Descuento por cantidad: si se llevan al menos "minimo" prendas en total,
  * se descuenta un porcentaje sobre el total bruto.
- * Propuesta del Plan: 10 % desde la tercera prenda (se confirma con la tienda).
+ * Regla de la tienda (14 nov): 15 % desde la tercera prenda (DescuentoFactory).
  */
 public class DescuentoPorCantidad implements Descuento {
 
