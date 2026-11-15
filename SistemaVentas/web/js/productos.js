@@ -522,6 +522,7 @@ async function desactivarVariante(v) {
 function abrirIngreso(v) {
     varianteIngreso = v;
     limpiarErrores(CAMPOS_INGRESO, "mensaje-variante");
+    limpiarErrores(CAMPOS_VARIANTE, "mensaje-variante");   // que no queden avisos viejos de "Agregar talla"
     document.getElementById("formIngreso").reset();
     document.getElementById("tituloIngreso").textContent =
         `Ingreso de mercadería: ${v.talla} ${v.color} (${v.sku}) · stock actual ${v.stock}`;
