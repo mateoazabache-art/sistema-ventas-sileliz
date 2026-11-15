@@ -55,7 +55,7 @@ public class SesionFilter implements Filter {
     private static final Set<String> ESCRITURA = Set.of("POST", "PUT", "DELETE");
 
     /** Solo el ADMINISTRADOR, con cualquier metodo (contrato 3.7). */
-    private static final List<String> SOLO_ADMIN = List.of("/api/usuarios", "/api/reportes");
+    private static final List<String> SOLO_ADMIN = List.of("/api/usuarios", "/api/reportes", "/api/ingresos");
 
     /** Todos leen (GET); solo el ADMINISTRADOR escribe (contrato 3.7). */
     private static final List<String> ADMIN_ESCRIBE = List.of(

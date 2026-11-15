@@ -67,6 +67,19 @@ public class MovimientoStock {
                 Tipo.ANULACION, cantidadRepuesta, motivo);
     }
 
+    /**
+     * Movimiento por un ingreso de mercaderia (compra a proveedor): el stock sube,
+     * la cantidad es positiva y no hay venta asociada (id_venta queda nulo).
+     */
+    public static MovimientoStock deIngreso(int idVariante, int cantidadIngresada,
+                                            int idUsuario, String motivo) {
+        if (cantidadIngresada <= 0) {
+            throw new IllegalArgumentException("La cantidad ingresada debe ser mayor que 0.");
+        }
+        return new MovimientoStock(idVariante, null, idUsuario,
+                Tipo.INGRESO, cantidadIngresada, motivo);
+    }
+
     public int getIdMovimiento() {
         return idMovimiento;
     }

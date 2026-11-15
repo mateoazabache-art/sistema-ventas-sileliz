@@ -2,6 +2,7 @@ package pe.tecsup.sileliz.modelo;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Pruebas de las fabricas de MovimientoStock (correccion pedida en la revision del PR #21).
@@ -56,5 +57,28 @@ public class MovimientoStockTest {
     @Test(expected = IllegalArgumentException.class)
     public void deAnulacion_conMinValue_seRechaza() {
         MovimientoStock.deAnulacion(1, 5, Integer.MIN_VALUE, 2, "motivo");
+    }
+
+    // ---- Ingreso de mercaderia ----
+
+    @Test
+    public void deIngreso_guardaLaCantidadEnPositivoYSinVenta() {
+        MovimientoStock m = MovimientoStock.deIngreso(5, 12, 2, "Compra a Gamarra");
+        assertEquals(12, m.getCantidad());
+        assertEquals(MovimientoStock.Tipo.INGRESO, m.getTipo());
+        assertNull(m.getIdVenta());             // un ingreso no viene de una venta
+        assertEquals(5, m.getIdVariante());
+        assertEquals(2, m.getIdUsuario());
+        assertEquals("Compra a Gamarra", m.getMotivo());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void deIngreso_conCero_seRechaza() {
+        MovimientoStock.deIngreso(5, 0, 2, "motivo");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void deIngreso_conNegativo_seRechaza() {
+        MovimientoStock.deIngreso(5, -3, 2, "motivo");
     }
 }

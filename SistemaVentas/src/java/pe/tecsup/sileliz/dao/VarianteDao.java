@@ -221,7 +221,7 @@ public class VarianteDao {
         }
     }
 
-    Optional<VarianteProducto> buscarPorId(Connection cn, int idVariante)
+    public Optional<VarianteProducto> buscarPorId(Connection cn, int idVariante)
             throws SQLException {
 
         try (PreparedStatement ps = cn.prepareStatement(SQL_POR_ID)) {
