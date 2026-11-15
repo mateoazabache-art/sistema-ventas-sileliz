@@ -171,12 +171,14 @@ public class VentaServiceTest {
     }
 
     @Test
-    public void porCantidadConTresPrendasAplicaDiezPorCiento() {
+    public void porCantidadConTresPrendasAplicaQuincePorCiento() {
+        // Regla de la tienda (14 nov): 15 % desde 3 prendas.
+        // bruto 3 x 59.90 = 179.70 -> 15 % = 26.955 -> 26.96 (HALF_UP)
         Venta v = servicio.registrar(solicitud("POR_CANTIDAD", 1, 3), 5);
-        assertEquals(new BigDecimal("17.97"), v.getDescuento());
-        assertEquals(new BigDecimal("161.73"), v.getTotal());
-        assertEquals(new BigDecimal("137.06"), v.getBaseImponible());
-        assertEquals(new BigDecimal("24.67"), v.getIgv());
+        assertEquals(new BigDecimal("26.96"), v.getDescuento());
+        assertEquals(new BigDecimal("152.74"), v.getTotal());
+        assertEquals(new BigDecimal("129.44"), v.getBaseImponible());
+        assertEquals(new BigDecimal("23.30"), v.getIgv());
     }
 
     // ---------- registrar: datos invalidos (no llegan a la base) ----------
