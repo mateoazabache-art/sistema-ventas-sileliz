@@ -5,8 +5,19 @@
   const tbody = document.getElementById("tbodyVentas");
   const mensaje = document.getElementById("mensaje");
   const infoPagina = document.getElementById("infoPagina");
-  const btnAnterior = document.getElementById("btnAnterior");
-  const btnSiguiente = document.getElementById("btnSiguiente");
+  const paginacion = document.getElementById("paginacion");
+
+  // Los métodos de pago llegan como EFECTIVO, YAPE...; en pantalla se ven con formato normal.
+  const NOMBRE_PAGO = {
+    EFECTIVO: "Efectivo",
+    YAPE: "Yape",
+    PLIN: "Plin",
+    TARJETA: "Tarjeta",
+    TRANSFERENCIA: "Transferencia"
+  };
+
+  // Estas dos columnas se ocultan en celular (en la tabla también: d-none d-md-table-cell).
+  const SOLO_PANTALLA_GRANDE = "d-none d-md-table-cell";
 
   function mostrarMensaje(texto, tipo) {
     mensaje.textContent = texto;
@@ -24,15 +35,25 @@
     return td;
   }
 
+  // 2026-11-14T10:05:00 -> 14/11/2026 10:05
+  function fechaLegible(iso) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(String(iso));
+    if (!m) return String(iso);
+    return m[3] + "/" + m[2] + "/" + m[1] + " " + m[4] + ":" + m[5];
+  }
+
+  function nombreDelPago(codigo) {
+    return NOMBRE_PAGO[codigo] || String(codigo);
+  }
+
   function dibujarFila(v) {
     const tr = document.createElement("tr");
-    const fecha = String(v.fechaHora).replace("T", " ").substring(0, 16);
 
     tr.appendChild(celda(v.comprobante));
-    tr.appendChild(celda(fecha));
+    tr.appendChild(celda(fechaLegible(v.fechaHora)));
     tr.appendChild(celda(v.cliente));
-    tr.appendChild(celda(v.vendedor));
-    tr.appendChild(celda(v.metodoPago));
+    tr.appendChild(celda(v.vendedor, SOLO_PANTALLA_GRANDE));
+    tr.appendChild(celda(nombreDelPago(v.metodoPago), SOLO_PANTALLA_GRANDE));
     tr.appendChild(celda("S/ " + Number(v.total).toFixed(2), "text-end"));
     tr.appendChild(celda(v.estado,
       v.estado === "ANULADA" ? "estado-anulada" : "estado-emitida"));
@@ -58,6 +79,36 @@
     return tr;
   }
 
+  function itemPagina(texto, destino, activo, desactivado) {
+    const li = document.createElement("li");
+    li.className = "page-item" + (activo ? " active" : "") + (desactivado ? " disabled" : "");
+    if (activo) li.setAttribute("aria-current", "page");
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "page-link";
+    boton.textContent = texto;
+    if (desactivado) {
+      boton.disabled = true;
+    } else {
+      boton.addEventListener("click", () => cargar(destino));
+    }
+    li.appendChild(boton);
+    return li;
+  }
+
+  // Anterior, hasta 5 números alrededor de la página actual y Siguiente.
+  function dibujarPaginacion(pagina, totalPaginas) {
+    paginacion.replaceChildren();
+    paginacion.appendChild(itemPagina("Anterior", pagina - 1, false, pagina <= 1));
+    let inicio = Math.max(1, pagina - 2);
+    const fin = Math.min(totalPaginas, inicio + 4);
+    inicio = Math.max(1, fin - 4);
+    for (let n = inicio; n <= fin; n++) {
+      paginacion.appendChild(itemPagina(String(n), n, n === pagina, false));
+    }
+    paginacion.appendChild(itemPagina("Siguiente", pagina + 1, false, pagina >= totalPaginas));
+  }
+
   async function cargar(pagina) {
     ocultarMensaje();
     const desde = document.getElementById("desde").value;
@@ -69,6 +120,8 @@
 
     try {
       const datos = await API.get(ruta);
+      if (!datos) return;   // sesión vencida: api.js ya mandó al login
+
       paginaActual = datos.pagina;
 
       tbody.replaceChildren();
@@ -83,9 +136,9 @@
       }
 
       const totalPaginas = Math.max(datos.paginas, 1);
-      infoPagina.textContent = "Página " + datos.pagina + " de " + totalPaginas;
-      btnAnterior.disabled = datos.pagina <= 1;
-      btnSiguiente.disabled = datos.pagina >= totalPaginas;
+      infoPagina.textContent = "Página " + datos.pagina + " de " + totalPaginas
+        + " (" + datos.total + " ventas)";
+      dibujarPaginacion(datos.pagina, totalPaginas);
     } catch (e) {
       mostrarMensaje(e.message, "danger");
     }
@@ -113,8 +166,6 @@
   }
 
   document.getElementById("btnBuscar").addEventListener("click", () => cargar(1));
-  btnAnterior.addEventListener("click", () => cargar(paginaActual - 1));
-  btnSiguiente.addEventListener("click", () => cargar(paginaActual + 1));
 
   try {
     const sesion = await API.auth.obtenerSesion();
@@ -124,5 +175,4 @@
   }
   cargar(1);
 })();
-
 
