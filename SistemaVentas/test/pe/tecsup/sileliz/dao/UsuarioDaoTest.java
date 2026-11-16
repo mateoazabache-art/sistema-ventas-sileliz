@@ -105,6 +105,21 @@ public class UsuarioDaoTest {
         assertEquals("El rollback debio borrar la persona", 0, contarPersonasConDni(dniPrueba));
     }
 
+    /** RN-05: desactivar y volver a activar al vendedor (la prueba lo deja activo). */
+    @Test
+    public void desactivaYVuelveAActivarAlVendedor() {
+        int id = dao.buscarPorNombreUsuario("vendedor").orElseThrow().getIdPersona();
+        try {
+            assertTrue(dao.desactivar(id));
+            assertFalse(dao.buscarPorId(id).orElseThrow().isActivo());
+            assertTrue(dao.activar(id));
+            assertTrue(dao.buscarPorId(id).orElseThrow().isActivo());
+            assertFalse("Un id que no es usuario no se activa", dao.activar(999999));
+        } finally {
+            dao.activar(id);
+        }
+    }
+
     private int contarPersonasConDni(String dni) throws SQLException {
         try (Connection cn = Conexion.getConnection();
              PreparedStatement ps = cn.prepareStatement("SELECT count(*) FROM persona WHERE dni = ?")) {

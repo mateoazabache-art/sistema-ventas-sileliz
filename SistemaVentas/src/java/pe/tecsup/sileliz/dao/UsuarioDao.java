@@ -270,6 +270,23 @@ public class UsuarioDao {
         }
     }
 
+    /**
+     * Vuelve a activar un usuario desactivado por error (persona.activo = true).
+     * Devuelve false si el usuario no existe.
+     */
+    public boolean activar(int idPersona) {
+        String sql = "UPDATE persona SET activo = true "
+                + "WHERE id_persona = ? AND EXISTS (SELECT 1 FROM usuario WHERE id_persona = ?)";
+        try (Connection cn = Conexion.getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setInt(1, idPersona);
+            ps.setInt(2, idPersona);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            throw ErrorSql.traducir(e);
+        }
+    }
+
     // ------------------------------------------------------------------
     // Ayudantes
     // ------------------------------------------------------------------
