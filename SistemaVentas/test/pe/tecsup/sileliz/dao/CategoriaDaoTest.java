@@ -77,6 +77,24 @@ public class CategoriaDaoTest {
     }
 
     @Test
+    public void listarPaginadoIncluyeCategoriasInactivas() throws SQLException {
+        int id = idPorNombre("Jeans");
+
+        assertTrue(dao.desactivar(cn, id));
+
+        Paginado<Categoria> resultado =
+                dao.listarPaginado(cn, 1, 50, "");
+
+        Categoria jeans = resultado.items().stream()
+                .filter(c -> c.getIdCategoria() == id)
+                .findFirst()
+                .orElse(null);
+
+        assertTrue(jeans != null);
+        assertFalse(jeans.isActivo());
+    }
+
+    @Test
     public void listarPaginadoBuscaSinDistinguirMayusculas() throws SQLException {
         Paginado<Categoria> resultado =
                 dao.listarPaginado(cn, 1, 50, "jEaNs");
