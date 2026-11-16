@@ -376,7 +376,7 @@ function crearFilaVariante(v) {
     tdStock.append(String(v.stock));
     if (v.activo && v.stock <= v.stockMinimo) {
         const aviso = document.createElement("span");
-        aviso.className = v.stock === 0 ? "badge text-bg-danger ms-1" : "badge text-bg-warning ms-1";   // sin stock en rojo, stock bajo en amarillo
+        aviso.className = "badge text-bg-danger ms-1";
         aviso.textContent = v.stock === 0 ? "Sin stock" : "Stock bajo";
         tdStock.appendChild(aviso);
     }
