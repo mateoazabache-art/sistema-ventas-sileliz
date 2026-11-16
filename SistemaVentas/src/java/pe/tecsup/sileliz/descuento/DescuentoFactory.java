@@ -8,11 +8,11 @@ import java.math.BigDecimal;
  */
 public final class DescuentoFactory {
 
-    /** Minimo de prendas para el descuento por cantidad (propuesta del Plan). */
+    /** Minimo de prendas para el descuento por cantidad (confirmado por la tienda, 14 nov). */
     public static final int MINIMO_POR_CANTIDAD = 3;
 
-    /** Porcentaje del descuento por cantidad (propuesta del Plan). */
-    public static final BigDecimal PORCENTAJE_POR_CANTIDAD = new BigDecimal("10");
+    /** Porcentaje del descuento por cantidad (decision de la tienda, 14 nov: 15 %). */
+    public static final BigDecimal PORCENTAJE_POR_CANTIDAD = new BigDecimal("15");
 
     private DescuentoFactory() {
     }

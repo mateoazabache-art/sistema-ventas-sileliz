@@ -1,5 +1,6 @@
 package pe.tecsup.sileliz.servicio;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -45,6 +46,32 @@ public class VentaService {
         this.ventaDao = ventaDao;
         this.varianteDao = varianteDao;
         this.movimientoDao = movimientoDao;
+    }
+
+    /**
+     * Regla de la tienda (entrevista del 14 nov): el vendedor puede dar un descuento
+     * especial (PORCENTAJE) de hasta 10 %. Como el porcentaje se aplica igual a todas
+     * las prendas, equivale a "hasta 10 % por prenda". El administrador no tiene tope.
+     */
+    public static final BigDecimal TOPE_PORCENTAJE_VENDEDOR = new BigDecimal("10");
+
+    /**
+     * La usa VentaServlet: aplica el tope del vendedor y registra la venta
+     * a nombre del usuario de la sesion.
+     */
+    public Venta registrar(VentaSolicitud s, Usuario usuario) {
+        if (usuario == null) {
+            throw new AccesoDenegadoException("Inicie sesión para vender.");
+        }
+        if (s != null && !usuario.esAdministrador()
+                && s.getTipoDescuento() != null
+                && "PORCENTAJE".equalsIgnoreCase(s.getTipoDescuento().trim())
+                && s.getValorDescuento() != null
+                && s.getValorDescuento().compareTo(TOPE_PORCENTAJE_VENDEDOR) > 0) {
+            throw new DatoInvalidoException("Como vendedor puede dar como máximo "
+                    + TOPE_PORCENTAJE_VENDEDOR + " % de descuento especial. Para más, pida al administrador.");
+        }
+        return registrar(s, usuario.getIdPersona());
     }
 
     public Venta registrar(VentaSolicitud s, int idUsuario) {
