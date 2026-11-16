@@ -60,8 +60,10 @@ y se repiten el día del ensayo con el proyecto recién bajado de `main`.
 
 | Fecha | Dónde | Resultado |
 |---|---|---|
-| 14 nov | `develop` (`4fd88f2`) | 214 pruebas |
-| 14 nov | `develop` + PR #49, #50 y #51 | **253/253** (base limpia y con las 14 ventas de ejemplo) |
+| 14 nov | `develop` (`4fd88f2`) | 227/227 |
+| 14 nov | `develop` + PR #49, #50 y #51 | 253/253 (base limpia y con las 14 ventas de ejemplo) |
+| 16 nov | `develop` (`2c76666`, con #47, #49, #54, #57, #58 y #59) | 312/312 |
+| 16 nov | `develop` + PR #50, #51, #52 y #53 | **330/330** |
 
 Nivel unitario (sin base): `Clave`, `Validador`, `Venta` (totales), `Descuento`, `VarianteProducto`, servicios con DAO falso.
 Nivel de integración (con `ventas_db`, rollback al terminar): DAO y transacciones de venta e ingreso.

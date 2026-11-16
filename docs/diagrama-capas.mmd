@@ -1,0 +1,172 @@
+---
+title: Gestión de Ventas Sileliz.mas — Capas (servlet → servicio → DAO), código real 16 nov 2026
+---
+classDiagram
+    direction LR
+
+    class SesionFilter {
+        <<filtro>>
+        protege /api/…
+        401 sin sesión
+        403 sin permiso por rol
+        415 si no es JSON
+        +usuarioActual(req)$ Usuario
+    }
+
+    class LoginServlet {
+        <<servlet>>
+        POST /api/login
+    }
+    class VentaServlet {
+        <<servlet>>
+        /api/ventas/…
+    }
+    class IngresoServlet {
+        <<servlet>>
+        POST /api/ingresos
+    }
+    class ProductoServlet {
+        <<servlet>>
+        /api/productos/…
+    }
+    class VarianteServlet {
+        <<servlet>>
+        /api/variantes/…
+    }
+    class CategoriaServlet {
+        <<servlet>>
+        /api/categorias/…
+    }
+    class ClienteServlet {
+        <<servlet>>
+        /api/clientes/…
+    }
+    class UsuarioServlet {
+        <<servlet>>
+        /api/usuarios/…
+    }
+    class ReporteServlet {
+        <<servlet>>
+        /api/reportes/…
+    }
+    class EstadisticaServlet {
+        <<servlet>>
+        GET /api/estadisticas/hoy
+    }
+
+    class AuthService {
+        +iniciarSesion(usuario, clave) Usuario
+    }
+    class VentaService {
+        +BigDecimal TOPE_PORCENTAJE_VENDEDOR = 10$
+        +registrar(VentaSolicitud, Usuario) Venta
+        +buscarPorId(id, Usuario) Comprobante
+        +listar(desde, hasta, pagina, tam, Usuario) Paginado
+        +anular(id, motivo, Usuario) Comprobante
+    }
+    class IngresoService {
+        +int CANTIDAD_MAXIMA = 999$
+        +registrar(IngresoSolicitud, Usuario) IngresoRegistrado
+    }
+    class ProductoService {
+        +registrar(Producto) Producto
+        +actualizar(Producto) void
+        +desactivar(id) void
+        +listarPaginado(pagina, tam, texto, idCategoria) Paginado
+    }
+    class VarianteService {
+        +registrar(VarianteProducto) VarianteProducto
+        +listarPorProducto(idProducto) List
+        +buscarPorTexto(texto) List
+    }
+    class CategoriaService {
+        +registrar(Categoria) Categoria
+        +actualizar(Categoria) void
+        +desactivar(id) void
+        +listarPaginado(pagina, tam, texto, activo) Paginado
+    }
+    class ClienteService {
+        +listar(pagina, tam, texto) Paginado
+        +buscarPorDni(dni) Cliente
+        +registrar(Cliente) Cliente
+        +actualizar(id, Cliente) Cliente
+        +desactivar(id) void
+    }
+    class UsuarioService {
+        +registrar(UsuarioSolicitud, Usuario) Usuario
+        +actualizar(id, UsuarioSolicitud, Usuario) Usuario
+        +restablecerClave(id, clave, Usuario) void
+        +desactivar(id, Usuario) void
+        +activar(id, Usuario) void
+    }
+    class ReporteService {
+        +ventas(desde, hasta, pagina, tam) ReporteVentas
+        +masVendidos(desde, hasta, limite) List
+        +porVendedor(desde, hasta) List
+    }
+
+    class UsuarioDao {
+        <<DAO>>
+    }
+    class VentaDao {
+        <<DAO>>
+    }
+    class VarianteDao {
+        <<DAO>>
+        descontarStock / reponerStock
+    }
+    class MovimientoDao {
+        <<DAO>>
+        kárdex
+    }
+    class ProductoDao {
+        <<DAO>>
+    }
+    class CategoriaDao {
+        <<DAO>>
+    }
+    class ClienteDao {
+        <<DAO>>
+    }
+    class ReporteDao {
+        <<DAO>>
+    }
+    class EstadisticaDao {
+        <<DAO>>
+    }
+    class Conexion {
+        <<util>>
+        +getConnection()$ Connection
+    }
+
+    SesionFilter ..> VentaServlet : deja pasar
+    LoginServlet --> AuthService
+    VentaServlet --> VentaService
+    IngresoServlet --> IngresoService
+    ProductoServlet --> ProductoService
+    ProductoServlet --> VarianteService
+    VarianteServlet --> VarianteService
+    CategoriaServlet --> CategoriaService
+    ClienteServlet --> ClienteService
+    UsuarioServlet --> UsuarioService
+    ReporteServlet --> ReporteService
+    EstadisticaServlet --> EstadisticaDao : solo lectura, sin reglas
+
+    AuthService --> UsuarioDao
+    UsuarioService --> UsuarioDao
+    VentaService --> VentaDao
+    VentaService --> VarianteDao
+    VentaService --> MovimientoDao
+    IngresoService --> VarianteDao
+    IngresoService --> MovimientoDao
+    ProductoService --> ProductoDao
+    ProductoService --> CategoriaDao
+    VarianteService --> VarianteDao
+    VarianteService --> ProductoDao
+    CategoriaService --> CategoriaDao
+    ClienteService --> ClienteDao
+    ReporteService --> ReporteDao
+
+    VentaDao ..> Conexion
+    VarianteDao ..> Conexion
+    UsuarioDao ..> Conexion

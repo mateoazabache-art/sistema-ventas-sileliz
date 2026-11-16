@@ -312,14 +312,20 @@ UPDATE usuario SET intentos_fallidos = ?, bloqueado_hasta = ? WHERE id_persona =
 
 ![Diagrama de clases del modelo](diagrama-clases.png)
 
-*Figura 5.1. Clases del paquete `modelo` y `descuento`, tomadas del código de `develop`. No se dibujan getters ni setters. Fuente editable: `docs/diagrama-clases.mmd` (Mermaid).*
+*Figura 5.1. Clases del paquete `modelo` y `descuento`, tomadas del código de `develop` (actualizado al 16 de noviembre, con los PR #49, #50 y #51). No se dibujan getters ni setters. Fuente editable: `docs/diagrama-clases.mmd` (Mermaid).*
+
+![Diagrama de capas](diagrama-capas.png)
+
+*Figura 5.2. Capas del sistema: cada servlet solo lee el JSON y llama a su servicio; el servicio aplica las reglas y las transacciones; el DAO ejecuta el SQL con `PreparedStatement` y la única clase que conoce la base es `Conexion`. `SesionFilter` protege todo `/api/*` antes de llegar al servlet. Fuente editable: `docs/diagrama-capas.mmd`.*
 
 ### 5.1 Qué muestra
 
 - **Herencia:** `Persona` es **abstracta** (`getTipo()` abstracto); `Cliente` y `Usuario` la extienden, igual que las tablas `cliente` y `usuario` extienden a `persona`.
 - **Composición:** una `Venta` contiene sus `DetalleVenta` (`agregarDetalle`); si la venta no existe, sus líneas tampoco.
 - **Polimorfismo e interfaz:** `Venta.calcularTotales(Descuento)` llama a `calcular()` sin saber si recibe `SinDescuento`, `DescuentoPorcentaje` o `DescuentoPorCantidad`. `DescuentoFactory.crear(tipo, valor)` elige la implementación.
-- **Enumeraciones:** `Rol`, `MetodoPago`, `EstadoVenta` y `MovimientoStock.Tipo` tienen exactamente los mismos valores que los `CHECK` de la base.
+- **Enumeraciones:** `Rol`, `MetodoPago`, `EstadoVenta` y `MovimientoStock.Tipo` (`VENTA`, `ANULACION`, `INGRESO`) tienen exactamente los mismos valores que los `CHECK` de la base.
+- **Métodos de fábrica:** `MovimientoStock.deVenta()`, `deAnulacion()` y `deIngreso()` crean cada tipo de movimiento con el signo correcto, así nadie arma un movimiento a mano (regla única del stock).
+- **Objetos de transporte:** `VentaSolicitud`, `IngresoSolicitud` y `UsuarioSolicitud` son lo que envía el navegador; `Comprobante`, `VentaFila` e `IngresoRegistrado` (`record`) son lo que devuelve el servidor.
 - **Encapsulamiento:** todos los atributos son privados; `Usuario.claveHash` es `transient`, así Gson nunca lo envía en un JSON.
 
 ### 5.2 Correspondencia entre clases y tablas
@@ -331,9 +337,12 @@ UPDATE usuario SET intentos_fallidos = ?, bloqueado_hasta = ? WHERE id_persona =
 | `Usuario` | `usuario` + `persona` | |
 | `Categoria`, `Producto`, `VarianteProducto` | `categoria`, `producto`, `variante_producto` | `Producto` tiene un objeto `Categoria`; `VarianteProducto` tiene un objeto `Producto`. |
 | `Venta`, `DetalleVenta` | `venta`, `detalle_venta` | |
-| `MovimientoStock` | `movimiento_stock` | `deVenta()` guarda la cantidad en negativo y `deAnulacion()` en positivo. |
+| `MovimientoStock` | `movimiento_stock` | `deVenta()` guarda la cantidad en negativo; `deAnulacion()` y `deIngreso()` en positivo. |
 | `VentaSolicitud` | — | Lo que el navegador envía al vender: solo ids y cantidades. Los precios los pone el servidor. |
 | `VentaResumen`, `FilaReporte`, `ResumenDia`, `ReporteVentas` | Vistas y consultas | `record` de Java 17: solo lectura, para reportes e Inicio. |
+| `Comprobante`, `VentaFila` | `v_ventas_resumen` + `detalle_venta` | `record` para el comprobante y la lista de Ventas realizadas (con los nombres del cliente y del vendedor). |
+| `IngresoSolicitud`, `IngresoRegistrado` | `variante_producto` + `movimiento_stock` | Lo que llega y lo que vuelve al registrar un ingreso de mercadería. |
+| `UsuarioSolicitud` | `usuario` + `persona` | Datos para crear o editar un usuario; la clave en texto solo vive hasta generar el hash. |
 
 ### 5.3 Diferencias con el diagrama del plan v3.1 (decisiones del equipo)
 
@@ -344,3 +353,5 @@ UPDATE usuario SET intentos_fallidos = ?, bloqueado_hasta = ? WHERE id_persona =
 | `VarianteProducto` sin `setStock` libre | Tiene `setStock` | Se usa para mapear filas de la base. El stock real solo cambia en la base con `descontarStock` y `reponerStock` (4.5). |
 | `calcularTotales(dto, igv)` | `calcularTotales(Descuento)` con la constante `Venta.IGV_FACTOR = 1.18` | El IGV es fijo (RN-01): no hace falta pasarlo en cada llamada. |
 | — | `MovimientoStock`, `VentaSolicitud`, `DescuentoFactory` y los `record` de reportes | Se agregaron durante el desarrollo (kárdex, JSON de la venta, creación de descuentos y reportes). |
+| — | `IngresoSolicitud`/`IngresoRegistrado`, `UsuarioSolicitud`, `Comprobante`, `VentaFila` y `MovimientoStock.deIngreso()` | Ingreso de mercadería (RF-19), API de usuarios, comprobante e historial de ventas (14–16 nov). |
+| `DescuentoPorCantidad` 10 % (propuesta) | 15 % desde 3 prendas; el vendedor da hasta 10 % de descuento especial | Decisión del dueño en la entrevista del 14 nov (`DescuentoFactory.PORCENTAJE_POR_CANTIDAD`, `VentaService.TOPE_PORCENTAJE_VENDEDOR`). |
