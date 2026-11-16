@@ -35,6 +35,7 @@ let productoAbierto = null;      // producto cuyas variantes se están viendo
 let idVarianteEditando = null;   // null = variante nueva
 let skuEscritoAMano = false;     // si el usuario escribió el SKU, ya no se sugiere
 let varianteIngreso = null;      // variante a la que se le está ingresando mercadería
+let tallasPermitidas = [];
 
 const CAMPOS_PRODUCTO = ["codigo", "nombre", "categoria", "descripcion", "precioVenta"];
 const CAMPOS_VARIANTE = ["talla", "color", "sku", "stockMinimo"];
@@ -59,7 +60,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         e.preventDefault();
         guardarVariante();
     });
-    document.getElementById("talla").addEventListener("input", sugerirSku);
+    document.getElementById("talla").addEventListener("change", sugerirSku);
     document.getElementById("color").addEventListener("input", sugerirSku);
     document.getElementById("sku").addEventListener("input", () => { skuEscritoAMano = true; });
     document.getElementById("btnCancelarIngreso").addEventListener("click", cerrarIngreso);
@@ -79,6 +80,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("btnNuevo").classList.toggle("d-none", !esAdministrador);
 
     await cargarCategorias();
+    await cargarTallas();
     cargarProductos();
 });
 
@@ -102,6 +104,29 @@ async function cargarCategorias() {
         });
     } catch (error) {
         mostrarError("No se pudieron cargar las categorías: " + error.message);
+    }
+}
+
+async function cargarTallas() {
+    const select = document.getElementById("talla");
+
+    try {
+        const tallas = await API.get("api/catalogos/tallas");
+
+        if (!Array.isArray(tallas)) {
+            throw new Error("La respuesta del catálogo de tallas no es válida.");
+        }
+
+        tallasPermitidas = tallas;
+        select.replaceChildren(new Option("Seleccione...", ""));
+
+        tallasPermitidas.forEach(talla => {
+            select.add(new Option(talla, talla));
+        });
+    } catch (error) {
+        tallasPermitidas = [];
+        select.replaceChildren(new Option("No se pudieron cargar las tallas", ""));
+        mostrarError("No se pudieron cargar las tallas: " + error.message);
     }
 }
 
@@ -133,6 +158,7 @@ function crearFilaProducto(p) {
     if (!p.activo) tr.classList.add("text-muted");
 
     const tdCodigo = celda(p.codigo);
+    tdCodigo.className = "d-none d-md-table-cell";
     const tdNombre = celda(p.nombre);
     const tdCategoria = celda(p.categoria ? p.categoria.nombre : "-");
     tdCategoria.className = "d-none d-md-table-cell";
@@ -457,8 +483,9 @@ function leerVariante() {
 /** Mismas reglas que VarianteService (largos 10/30/30, mínimo entero >= 0). */
 function validarVariante(d) {
     const errores = {};
-    if (!Validaciones.esObligatorio(d.talla)) errores.talla = "Ingrese la talla.";
-    else if (!Validaciones.cumpleLongitudMaxima(d.talla, 10)) errores.talla = "Máximo 10 caracteres.";
+
+    if (!Validaciones.esObligatorio(d.talla)) errores.talla = "Seleccione una talla.";
+    else if (!Validaciones.esTallaPermitida(d.talla, tallasPermitidas)) errores.talla = "Seleccione una talla permitida.";
 
     if (!Validaciones.esObligatorio(d.color)) errores.color = "Ingrese el color.";
     else if (!Validaciones.cumpleLongitudMaxima(d.color, 30)) errores.color = "Máximo 30 caracteres.";

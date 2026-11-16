@@ -41,7 +41,6 @@ public class VarianteService {
         return varianteDao.insertar(variante);
     }
 
-    
     public void actualizar(VarianteProducto variante) {
         if (variante == null) {
             throw new DatoInvalidoException("La variante es obligatoria.");
@@ -69,7 +68,6 @@ public class VarianteService {
                     + variante.getIdVariante() + ".");
         }
     }
-
 
     public void desactivar(int idVariante) {
         validarId(idVariante);
@@ -149,6 +147,11 @@ public class VarianteService {
             throw new DatoInvalidoException(
                     "La talla no puede superar "
                     + LONGITUD_MAXIMA_TALLA + " caracteres.");
+        }
+
+        if (!Validador.esTallaPermitida(variante.getTalla())) {
+            throw new DatoInvalidoException(
+                    "La talla debe ser L, XL, 2XL, 3XL o 4XL.");
         }
 
         if (!Validador.esObligatorio(variante.getColor())) {

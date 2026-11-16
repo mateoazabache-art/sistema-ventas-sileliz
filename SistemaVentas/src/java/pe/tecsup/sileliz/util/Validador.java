@@ -1,9 +1,14 @@
 package pe.tecsup.sileliz.util;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 public class Validador {
+
+    private static final List<String> TALLAS_PERMITIDAS = List.of(
+            "L", "XL", "2XL", "3XL", "4XL"
+    );
 
     public static boolean esObligatorio(String valor) {
         return valor != null && !valor.trim().isEmpty();
@@ -48,5 +53,14 @@ public class Validador {
         return talla != null
                 && tallasPermitidas != null
                 && tallasPermitidas.contains(talla.trim().toUpperCase());
+    }
+
+    public static boolean esTallaPermitida(String talla) {
+        return talla != null
+                && TALLAS_PERMITIDAS.contains(talla.trim().toUpperCase());
+    }
+
+    public static List<String> obtenerTallasPermitidas() {
+        return TALLAS_PERMITIDAS;
     }
 }
