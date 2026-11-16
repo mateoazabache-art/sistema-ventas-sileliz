@@ -59,3 +59,7 @@
 .motivo { color: var(--color-alerta); font-size: .85rem; margin: .25rem 0 0; }
 
 .nota-igv { font-size: .8rem; color: #555; text-align: right; margin: 0; }
+
+/* La línea del TOTAL no debe quedar partida por el espacio entre columnas */
+.totales { column-gap: 0; }
+.totales dt { padding-right: .75rem; }

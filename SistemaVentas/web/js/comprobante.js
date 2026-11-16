@@ -5,11 +5,11 @@
  * Los totales se muestran tal cual vienen del servidor (nunca se recalculan aquí).
  */
 (function () {
-    // Datos de la tienda. PENDIENTE: dirección y teléfono (pedirlos a Rafael, el dueño).
+    // Datos de la tienda (confirmados por Rafael, el dueño).
     const TIENDA = {
-        nombre: 'Sileliz.mas - Moda en tallas grandes',
-        direccion: 'Dirección: por confirmar',
-        telefono: 'Teléfono: por confirmar'
+        nombre: 'Sileliz.mas - Más que una talla',
+        direccion: 'Dirección: Calle Obispo Guillermo Charun 324',
+        telefono: 'Teléfono: 953 137 318'
     };
 
     const METODOS_PAGO = {
