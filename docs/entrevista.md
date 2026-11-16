@@ -1,29 +1,53 @@
-# Acta de Entrevista y Requerimientos - Sileliz.mas
-**Fecha de entrevista:** 28 de octubre de 2026  
-**Entrevistador:** Mateo Azabache (Gestión del Proyecto)  
-**Entrevistado (Representante de la tienda):** Rafael (Dueño / Administrador de Sileliz.mas)  
+# Acta de entrevista con la tienda — Sileliz.mas
+
+| Dato | Detalle |
+|---|---|
+| Fecha | Sábado 14 de noviembre de 2026 |
+| Modalidad | Cuestionario escrito de 13 preguntas, respondido por el dueño |
+| Entrevistado | Rafael Alva, dueño y administrador de Sileliz.mas |
+| Preparó el acta | Rafael Alva, como suplente de Mateo en la gestión del proyecto (plan 7.1) |
+| Compartida con | Cesia, Naomi, Luz y Mateo |
+
+> **Nota sobre la fecha.** El plan preveía la entrevista para el 28 de octubre (tarea 5 de Mateo), pero no llegó a hacerse.
+> Hasta hoy el equipo trabajó con los **supuestos** del plan (riesgo R7: "la tienda no responde a tiempo" → supuestos
+> documentados y valores como constantes fáciles de cambiar). Esta acta confirma o corrige esos supuestos.
+> Las correcciones ya se aplicaron al sistema (PR #50 y #51).
 
 ---
 
-### 1. Resumen de Acuerdos y Reglas de Negocio Validadas
+## 1. Situación actual de la tienda
 
-* **Sistema de Precios e IGV (RN-01):**  
-  Se acordó que los precios de las prendas mostrados en el catálogo **ya incluyen el IGV (18%)**[cite: 7, 14]. El sistema calculará automáticamente la base imponible dividiendo el total entre 1.18 y el IGV restando el total menos la base[cite: 7].
+| Pregunta | Respuesta del dueño |
+|---|---|
+| ¿Cómo registran hoy las ventas y el stock? | Con un sistema de ventas comercial llamado **Keyfácil**. |
+| ¿Cuál es el problema que más molesta? | **No saber qué prendas se venden más.** |
+| ¿Quiénes trabajan en la tienda? | El dueño administra; hay **dos vendedores**. |
+| ¿Cada cuánto llega mercadería y de dónde? | **Todas las semanas**, de **Lima y de China**. |
+| ¿Qué tallas manejan? | **Desde L hasta 4XL** (L, XL, 2XL, 3XL, 4XL). |
 
-* **Control de Stock (RN-02 y RN-03):**  
-  El inventario no se maneja por producto general, sino estrictamente por **variantes** (combinación única de Producto, Talla y Color)[cite: 7]. El stock se descuenta de forma atómica al momento de registrar la venta para evitar sobreventa[cite: 6, 7].
+## 2. Respuestas que afectan al sistema
 
-* **Métodos de Pago:**  
-  Los medios de pago aceptados en la tienda física para las ventas de mostrador son: **EFECTIVO, YAPE, PLIN, TARJETA y TRANSFERENCIA**[cite: 14].
+| N.º | Tema | Respuesta del dueño | Supuesto del plan | Decisión para el sistema |
+|---|---|---|---|---|
+| 1 | IGV | Hoy la tienda está en el **NRUS** y en trámite para pasar a **EIRL**. | RN-01: precio con IGV 18 % incluido | **Se mantiene RN-01** (IGV 18 % incluido; base = total / 1,18). Es lo trabajado en clase y deja el sistema listo para el régimen de la EIRL. `IGV_FACTOR` es una constante. |
+| 2 | Métodos de pago | Yape, Plin, tarjetas, transferencia, efectivo y **pago link**. | Efectivo, Yape, Plin, Tarjeta, Transferencia | Se mantienen los 5. **Pago link queda para la versión 2** (cambia la tabla `venta`, `MetodoPago` y la página, con el código congelado). Mientras tanto se registra como Tarjeta. |
+| 3 | Descuento por cantidad | **15 % desde 3 prendas.** | 10 % desde 3 prendas | **Cambiado** a 15 % en `DescuentoFactory` y en la vista previa de `venta-nueva.js` (PR #51). |
+| 4 | Descuento especial | Durante la venta, el vendedor puede descontar **hasta 10 % por prenda**. | Cualquier porcentaje de 0 a 100 % | **Nueva regla:** el vendedor puede dar como máximo 10 % de descuento especial; el administrador no tiene tope (`VentaService.TOPE_PORCENTAJE_VENDEDOR`, PR #51). Como el porcentaje se aplica igual a todas las prendas, equivale a "10 % por prenda". |
+| 5 | Stock mínimo | **2 unidades** para avisar stock bajo. | 2 por defecto (RN-10) | **Se confirma.** |
+| 6 | Anulaciones | La tienda **no hace devoluciones**. Se anula una venta cuando la clienta pide su **boleta con DNI** (se anula y se emite otra con sus datos). | Solo el admin anula, con motivo (RN-08) | **Se confirma RN-08.** Motivo típico: "Cliente pidió boleta con DNI". |
+| 7 | Reportes | Faltan: prendas que **más se venden**, las que **dejan mejor ganancia** y las que **se venden más rápido**. | Ventas por fechas, más vendidos, por vendedor | "Más vendidos" ya existe. **Ganancia y rotación quedan para la versión 2**: necesitan el costo de compra y la fecha de ingreso de cada lote, que el sistema no guarda. |
+| 8 | Usuarios | Un administrador (el dueño) y dos vendedores. | Roles ADMINISTRADOR y VENDEDOR | **Se confirma.** La API de usuarios está en el PR #50; la página, a cargo de Cesia. |
+| 9 | Fuera de alcance | La facturación electrónica ante SUNAT requiere un proveedor y tiene costo; no corresponde a un proyecto del instituto. | Comprobante interno sin valor tributario (RN-07) | **Se confirma RN-07.** |
+| 10 | Lema de la tienda | **"Más que una talla"** | "Moda en tallas grandes" | **Cambiado** en `login.html` (PR #51) y en el comprobante (Cesia, PR #47). |
 
-* **Descuentos y Promociones:**  
-  Se implementará la interfaz de polimorfismo *Descuento* con dos variantes principales: *SinDescuento* y *DescuentoPorcentaje*[cite: 19]. Como propuesta de tienda, se validó aplicar un **10% de descuento a partir de la tercera prenda** en el carrito (*DescuentoPorCantidad*)[cite: 19].
+## 3. Mejoras para una versión 2 (no entran en la entrega del 20 de noviembre)
 
-* **Comprobantes y Validez Tributaria (RN-07):**  
-  La tienda **no emite facturación electrónica ante SUNAT** dentro de este sistema[cite: 4, 7]. Se emite un **comprobante interno (boleta de venta interna)** con serie y correlativo (ej. `B001-000015`) que lleva impreso obligatoriamente el rótulo: *"Comprobante interno, sin valor tributario"*[cite: 7].
+1. Método de pago **Pago link**.
+2. Reporte de **ganancia por prenda** (requiere guardar el costo de compra en el ingreso de mercadería).
+3. Reporte de **rotación**: prendas que se venden más rápido (días entre el ingreso y la venta).
+4. Facturación electrónica ante SUNAT, mediante un proveedor autorizado.
 
-* **Gestión de Clientes (RN-06):**  
-  Se permite realizar ventas rápidas a clientes anónimos o "Consumidor Final". En el comprobante y el registro de venta, si no se selecciona un cliente, aparecerá por defecto como **"Cliente: Varios"**[cite: 7, 14].
+## 4. Conformidad
 
-* **Seguridad y Roles (RN-05 y RN-11):**  
-  El sistema operará bajo dos roles estrictos: **Administrador** (control total de usuarios, anulación de ventas con motivo, reportes y catálogo) y **Vendedor** (registro de ventas, gestión de clientes y consulta de catálogo)[cite: 6, 7]. Las claves de acceso se almacenan cifradas con **PBKDF2** y la cuenta se bloquea por 15 minutos tras 5 intentos fallidos[cite: 6, 7, 22].
+El dueño revisó estas respuestas y las decisiones de la columna "Decisión para el sistema".
+Cualquier cambio posterior se registra en este documento con fecha.

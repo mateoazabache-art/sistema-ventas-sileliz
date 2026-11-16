@@ -1,5 +1,5 @@
 ---
-title: Gestión de Ventas Sileliz.mas — Diagrama de clases del modelo (código real de develop, 12 nov 2026)
+title: Gestión de Ventas Sileliz.mas — Diagrama de clases del modelo (código real de develop, 16 nov 2026)
 ---
 classDiagram
     direction TB
@@ -118,7 +118,15 @@ classDiagram
         -String motivo
         +deVenta(idVenta, idVariante, cantidad, idUsuario)$ MovimientoStock
         +deAnulacion(idVenta, idVariante, cantidad, idUsuario, motivo)$ MovimientoStock
+        +deIngreso(idVariante, cantidad, idUsuario, motivo)$ MovimientoStock
     }
+    class Tipo {
+        <<enumeration>>
+        VENTA
+        ANULACION
+        INGRESO
+    }
+    MovimientoStock --> Tipo
     class EstadoVenta {
         <<enumeration>>
         EMITIDA
@@ -139,6 +147,50 @@ classDiagram
         -BigDecimal valorDescuento
         -List~Linea~ lineas
     }
+    class Comprobante {
+        <<record>>
+        Venta venta
+        String cliente
+        String dniCliente
+        String vendedor
+    }
+    class VentaFila {
+        <<record>>
+        int idVenta
+        String comprobante
+        LocalDateTime fechaHora
+        String cliente
+        String vendedor
+        BigDecimal total
+        MetodoPago metodoPago
+        EstadoVenta estado
+    }
+    class IngresoSolicitud {
+        -int idVariante
+        -Integer cantidad
+        -String motivo
+    }
+    class IngresoRegistrado {
+        <<record>>
+        int idVariante
+        String sku
+        int cantidad
+        int stock
+    }
+    class UsuarioSolicitud {
+        -String nombres
+        -String apellidos
+        -String dni
+        -String nombreUsuario
+        -String rol
+        -String clave
+    }
+    Comprobante --> Venta : muestra
+    VentaFila --> EstadoVenta
+    IngresoSolicitud ..> VarianteProducto : idVariante
+    IngresoRegistrado ..> MovimientoStock : resultado del INGRESO
+    UsuarioSolicitud ..> Usuario : crea / edita
+
     Venta "1" *-- "1..*" DetalleVenta : contiene
     Venta --> EstadoVenta
     Venta --> MetodoPago
@@ -165,7 +217,7 @@ classDiagram
     class DescuentoFactory {
         <<utility>>
         +int MINIMO_POR_CANTIDAD = 3$
-        +BigDecimal PORCENTAJE_POR_CANTIDAD = 10$
+        +BigDecimal PORCENTAJE_POR_CANTIDAD = 15$
         +crear(String tipo, BigDecimal valor)$ Descuento
     }
     Descuento <|.. SinDescuento
