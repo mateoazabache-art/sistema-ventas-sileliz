@@ -62,7 +62,8 @@ public class CategoriaDaoTest {
 
     @Test
     public void listarPaginadoDevuelveCategoriasOrdenadas() throws SQLException {
-        Paginado<Categoria> resultado = dao.listarPaginado(cn, 1, 50, "");
+        Paginado<Categoria> resultado =
+                dao.listarPaginado(cn, 1, 50, "", null);
 
         List<Categoria> categorias = resultado.items();
 
@@ -77,9 +78,70 @@ public class CategoriaDaoTest {
     }
 
     @Test
+    public void listarPaginadoIncluyeCategoriasInactivas() throws SQLException {
+        int id = idPorNombre("Jeans");
+
+        assertTrue(dao.desactivar(cn, id));
+
+        Paginado<Categoria> resultado =
+                dao.listarPaginado(cn, 1, 50, "", null);
+
+        Categoria jeans = resultado.items().stream()
+                .filter(c -> c.getIdCategoria() == id)
+                .findFirst()
+                .orElse(null);
+
+        assertTrue(jeans != null);
+        assertFalse(jeans.isActivo());
+    }
+
+    @Test
+    public void listarPaginadoFiltraCategoriasActivas() throws SQLException {
+        int id = idPorNombre("Jeans");
+        assertTrue(dao.desactivar(cn, id));
+
+        Paginado<Categoria> resultado =
+                dao.listarPaginado(cn, 1, 50, "", true);
+
+        assertTrue(resultado.items().stream()
+                .noneMatch(c -> c.getIdCategoria() == id));
+
+        assertTrue(resultado.items().stream()
+                .allMatch(Categoria::isActivo));
+    }
+
+    @Test
+    public void listarPaginadoFiltraCategoriasInactivas() throws SQLException {
+        int id = idPorNombre("Jeans");
+        assertTrue(dao.desactivar(cn, id));
+
+        Paginado<Categoria> resultado =
+                dao.listarPaginado(cn, 1, 50, "", false);
+
+        assertTrue(resultado.items().stream()
+                .anyMatch(c -> c.getIdCategoria() == id));
+
+        assertTrue(resultado.items().stream()
+                .noneMatch(Categoria::isActivo));
+    }
+
+    @Test
+    public void listarPaginadoCombinaBusquedaYEstado() throws SQLException {
+        int id = idPorNombre("Jeans");
+        assertTrue(dao.desactivar(cn, id));
+
+        Paginado<Categoria> resultado =
+                dao.listarPaginado(cn, 1, 50, "jea", false);
+
+        assertEquals(1L, resultado.total());
+        assertEquals("Jeans", resultado.items().get(0).getNombre());
+        assertFalse(resultado.items().get(0).isActivo());
+    }
+
+    @Test
     public void listarPaginadoBuscaSinDistinguirMayusculas() throws SQLException {
         Paginado<Categoria> resultado =
-                dao.listarPaginado(cn, 1, 50, "jEaNs");
+                dao.listarPaginado(cn, 1, 50, "jEaNs", null);
 
         assertEquals(1L, resultado.total());
         assertEquals("Jeans", resultado.items().get(0).getNombre());
@@ -88,10 +150,10 @@ public class CategoriaDaoTest {
     @Test
     public void listarPaginadoDivideResultadosEnPaginas() throws SQLException {
         Paginado<Categoria> primera =
-                dao.listarPaginado(cn, 1, 2, "");
+                dao.listarPaginado(cn, 1, 2, "", null);
 
         Paginado<Categoria> segunda =
-                dao.listarPaginado(cn, 2, 2, "");
+                dao.listarPaginado(cn, 2, 2, "", null);
 
         assertEquals(1, primera.pagina());
         assertEquals(2, primera.tam());
@@ -107,6 +169,21 @@ public class CategoriaDaoTest {
                 primera.items().get(1).getIdCategoria()
                 != segunda.items().get(0).getIdCategoria()
         );
+    }
+
+    @Test
+    public void listarPaginadoCuentaSoloCategoriasDelEstadoFiltrado()
+            throws SQLException {
+
+        int id = idPorNombre("Jeans");
+        assertTrue(dao.desactivar(cn, id));
+
+        Paginado<Categoria> resultado =
+                dao.listarPaginado(cn, 1, 2, "", false);
+
+        assertEquals(1L, resultado.total());
+        assertEquals(1, resultado.items().size());
+        assertEquals(1, resultado.paginas());
     }
 
     @Test

@@ -21,15 +21,15 @@ import pe.tecsup.sileliz.util.Paginado;
  */
 public class CategoriaDao {
 
-    private static final String FILTRO =
-            "WHERE nombre ILIKE ? ESCAPE '\\' ";
-
     private static final String SQL_CONTAR =
-            "SELECT COUNT(*) FROM categoria " + FILTRO;
+            "SELECT COUNT(*) FROM categoria "
+            + "WHERE nombre ILIKE ? ESCAPE '\\' "
+            + "AND (? IS NULL OR activo = ?)";
 
     private static final String SQL_LISTAR =
             "SELECT id_categoria, nombre, activo FROM categoria "
-            + FILTRO
+            + "WHERE nombre ILIKE ? ESCAPE '\\' "
+            + "AND (? IS NULL OR activo = ?) "
             + "ORDER BY nombre, id_categoria LIMIT ? OFFSET ?";
 
     private static final String SQL_POR_ID =
@@ -47,31 +47,34 @@ public class CategoriaDao {
             "UPDATE categoria SET activo = FALSE WHERE id_categoria = ?";
 
     /**
-     * Lista categorias activas e inactivas, filtradas por nombre.
-     * Una pagina vacia o null en texto devuelve todas.
+     * Lista categorias con busqueda, estado opcional y paginacion.
+     * Si activo es null, devuelve categorias activas e inactivas.
      */
-    public Paginado<Categoria> listarPaginado(int pagina, int tam, String texto) {
+    public Paginado<Categoria> listarPaginado(
+            int pagina, int tam, String texto, Boolean activo) {
         try (Connection cn = Conexion.getConnection()) {
-            return listarPaginado(cn, pagina, tam, texto);
+            return listarPaginado(cn, pagina, tam, texto, activo);
         } catch (SQLException e) {
             throw ErrorSql.traducir(e);
         }
     }
 
     Paginado<Categoria> listarPaginado(
-            Connection cn, int pagina, int tam, String texto) throws SQLException {
+            Connection cn, int pagina, int tam,
+            String texto, Boolean activo) throws SQLException {
 
         int paginaValida = Math.max(pagina, 1);
         int tamValido = Paginado.normalizarTam(tam);
         String patron = crearPatron(texto);
 
-        long total = contar(cn, patron);
+        long total = contar(cn, patron, activo);
         List<Categoria> items = new ArrayList<>();
 
         try (PreparedStatement ps = cn.prepareStatement(SQL_LISTAR)) {
             ps.setString(1, patron);
-            ps.setInt(2, tamValido);
-            ps.setInt(3, Paginado.offset(paginaValida, tamValido));
+            establecerEstado(ps, 2, activo);
+            ps.setInt(4, tamValido);
+            ps.setInt(5, Paginado.offset(paginaValida, tamValido));
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -84,24 +87,43 @@ public class CategoriaDao {
     }
 
     /**
-     * Cuenta las categorias que coinciden con el texto.
+     * Cuenta categorias segun texto y estado opcional.
      */
-    public long contar(String texto) {
+    public long contar(String texto, Boolean activo) {
         try (Connection cn = Conexion.getConnection()) {
-            return contar(cn, crearPatron(texto));
+            return contar(cn, crearPatron(texto), activo);
         } catch (SQLException e) {
             throw ErrorSql.traducir(e);
         }
     }
 
-    long contar(Connection cn, String patron) throws SQLException {
+    long contar(Connection cn, String patron, Boolean activo)
+            throws SQLException {
+
         try (PreparedStatement ps = cn.prepareStatement(SQL_CONTAR)) {
             ps.setString(1, patron);
+            establecerEstado(ps, 2, activo);
 
             try (ResultSet rs = ps.executeQuery()) {
                 rs.next();
                 return rs.getLong(1);
             }
+        }
+    }
+
+    /**
+     * Asigna el filtro de estado. Null significa todos los estados.
+     */
+    private static void establecerEstado(
+            PreparedStatement ps, int posicion, Boolean activo)
+            throws SQLException {
+
+        if (activo == null) {
+            ps.setNull(posicion, java.sql.Types.BOOLEAN);
+            ps.setNull(posicion + 1, java.sql.Types.BOOLEAN);
+        } else {
+            ps.setBoolean(posicion, activo);
+            ps.setBoolean(posicion + 1, activo);
         }
     }
 
