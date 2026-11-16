@@ -20,7 +20,7 @@
     </header>
 
     <main id="contenido-principal">
-        <h2>Gestión de Productos</h2>
+        <h2>Productos</h2>
 
         <!-- Mensajes de éxito y de error -->
         <div id="mensaje-ok" class="alert alert-success d-none" role="status"></div>
@@ -99,7 +99,7 @@
             <table class="table table-striped align-middle" id="tablaProductos">
                 <thead>
                     <tr>
-                        <th>Código</th>
+                        <th class="d-none d-md-table-cell">Código</th>
                         <th>Nombre</th>
                         <th class="d-none d-md-table-cell">Categoría</th>
                         <th class="text-end">Precio</th>
@@ -176,8 +176,9 @@
                     <h4 id="tituloFormVariante" class="h6 col-12 mb-0 mt-2">Agregar talla y color</h4>
                     <div class="col-6 col-md-2">
                         <label for="talla" class="form-label small">Talla *</label>
-                        <input type="text" id="talla" class="form-control form-control-sm" maxlength="10"
-                               autocomplete="off" placeholder="Ej. XL">
+                        <select id="talla" class="form-select form-select-sm">
+                            <option value="">Cargando tallas...</option>
+                        </select>
                         <div class="invalid-feedback" id="error-talla"></div>
                     </div>
                     <div class="col-6 col-md-3">
