@@ -13,6 +13,7 @@
  *   POST   api/productos/{id}/variantes              201 con la variante creada
  *   PUT    api/variantes/{id}
  *   DELETE api/variantes/{id}                        desactiva
+ *   POST   api/ingresos                              ingreso de mercadería (suma stock + kárdex)
  *
  * Reglas del proyecto:
  *  - Todas las llamadas al servidor pasan por API (api.js).
@@ -33,9 +34,11 @@ let idProductoEditando = null;   // null = producto nuevo
 let productoAbierto = null;      // producto cuyas variantes se están viendo
 let idVarianteEditando = null;   // null = variante nueva
 let skuEscritoAMano = false;     // si el usuario escribió el SKU, ya no se sugiere
+let varianteIngreso = null;      // variante a la que se le está ingresando mercadería
 
 const CAMPOS_PRODUCTO = ["codigo", "nombre", "categoria", "descripcion", "precioVenta"];
 const CAMPOS_VARIANTE = ["talla", "color", "sku", "stockMinimo"];
+const CAMPOS_INGRESO = ["cantidadIngreso", "motivoIngreso"];
 
 document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("formBuscar").addEventListener("submit", (e) => {
@@ -59,6 +62,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("talla").addEventListener("input", sugerirSku);
     document.getElementById("color").addEventListener("input", sugerirSku);
     document.getElementById("sku").addEventListener("input", () => { skuEscritoAMano = true; });
+    document.getElementById("btnCancelarIngreso").addEventListener("click", cerrarIngreso);
+    document.getElementById("formIngreso").addEventListener("submit", (e) => {
+        e.preventDefault();
+        guardarIngreso();
+    });
 
     // El rol sale de la sesión. Si el vendedor forzara un botón, el servidor igual responde 403.
     try {
@@ -326,6 +334,7 @@ async function abrirVariantes(p) {
     productoAbierto = p;
     pintarTituloVariantes();
     limpiarFormularioVariante();
+    cerrarIngreso();
 
     // Se agregan variantes solo si es administrador y el producto está activo
     const puedeEscribir = esAdministrador && p.activo;
@@ -348,6 +357,7 @@ function cerrarVariantes() {
     document.getElementById("seccionVariantes").classList.add("d-none");
     productoAbierto = null;
     limpiarFormularioVariante();
+    cerrarIngreso();
 }
 
 async function cargarVariantes() {
@@ -388,6 +398,8 @@ function crearFilaVariante(v) {
     const tdAcciones = document.createElement("td");
     tdAcciones.className = "text-nowrap";
     if (esAdministrador && v.activo && productoAbierto.activo) {
+        tdAcciones.appendChild(boton("Ingresar", "btn btn-sm btn-success me-1",
+            () => abrirIngreso(v)));
         tdAcciones.appendChild(boton("Editar", "btn btn-sm btn-outline-primary me-1",
             () => editarVariante(v)));
         tdAcciones.appendChild(boton("Desactivar", "btn btn-sm btn-outline-danger",
@@ -498,6 +510,69 @@ async function desactivarVariante(v) {
         await cargarVariantes();
     } catch (error) {
         mostrarErrorEn("mensaje-variante", error.message);
+    }
+}
+
+// ---------------------------------------------------------------
+// Ingreso de mercadería (solo administrador)
+// El navegador envía solo id, cantidad y motivo. El servidor suma el stock y lo
+// anota en el kárdex en una sola transacción, y devuelve el stock real.
+// ---------------------------------------------------------------
+
+function abrirIngreso(v) {
+    varianteIngreso = v;
+    limpiarErrores(CAMPOS_INGRESO, "mensaje-variante");
+    limpiarErrores(CAMPOS_VARIANTE, "mensaje-variante");   // que no queden avisos viejos de "Agregar talla"
+    document.getElementById("formIngreso").reset();
+    document.getElementById("tituloIngreso").textContent =
+        `Ingreso de mercadería: ${v.talla} ${v.color} (${v.sku}) · stock actual ${v.stock}`;
+    const form = document.getElementById("formIngreso");
+    form.classList.remove("d-none");
+    form.scrollIntoView({ behavior: "smooth", block: "center" });
+    document.getElementById("cantidadIngreso").focus();
+}
+
+function cerrarIngreso() {
+    varianteIngreso = null;
+    document.getElementById("formIngreso").reset();
+    document.getElementById("formIngreso").classList.add("d-none");
+    CAMPOS_INGRESO.forEach(campo => {
+        document.getElementById(campo).classList.remove("is-invalid");
+        document.getElementById(`error-${campo}`).textContent = "";
+    });
+}
+
+/** Mismas reglas que IngresoService: cantidad entera 1–999 y motivo obligatorio (máx. 200). */
+function validarIngreso(cantidad, motivo) {
+    const errores = {};
+    if (!/^\d+$/.test(cantidad) || Number(cantidad) < 1 || Number(cantidad) > 999) {
+        errores.cantidadIngreso = "Entero entre 1 y 999.";
+    }
+    if (!Validaciones.esObligatorio(motivo)) errores.motivoIngreso = "Escriba el motivo (proveedor, guía...).";
+    else if (!Validaciones.cumpleLongitudMaxima(motivo, 200)) errores.motivoIngreso = "Máximo 200 caracteres.";
+    return errores;
+}
+
+async function guardarIngreso() {
+    if (!varianteIngreso) return;
+    limpiarErrores(CAMPOS_INGRESO, "mensaje-variante");
+    const cantidad = document.getElementById("cantidadIngreso").value.trim();
+    const motivo = document.getElementById("motivoIngreso").value.trim();
+    if (marcarErrores(validarIngreso(cantidad, motivo))) return;
+
+    const boton = document.getElementById("btnGuardarIngreso");
+    boton.disabled = true;               // evita registrar dos veces con doble clic
+    try {
+        const r = await API.post("api/ingresos",
+            { idVariante: varianteIngreso.idVariante, cantidad: Number(cantidad), motivo });
+        if (!r) return;
+        cerrarIngreso();
+        mostrarOk(`Ingreso registrado: +${r.cantidad} de ${r.sku}. Stock actual: ${r.stock}.`);
+        await cargarVariantes();
+    } catch (error) {
+        mostrarErrorEn("mensaje-variante", error.message);
+    } finally {
+        boton.disabled = false;
     }
 }
 

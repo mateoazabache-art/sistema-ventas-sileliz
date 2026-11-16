@@ -150,6 +150,27 @@
                     </table>
                 </div>
 
+                <!-- Ingreso de mercadería (solo administrador): suma stock y lo anota en el kárdex -->
+                <form id="formIngreso" class="row g-2 align-items-end border rounded p-2 mb-3 bg-light d-none" novalidate>
+                    <h4 id="tituloIngreso" class="h6 col-12 mb-0">Ingreso de mercadería</h4>
+                    <div class="col-4 col-md-2">
+                        <label for="cantidadIngreso" class="form-label small">Cantidad *</label>
+                        <input type="number" id="cantidadIngreso" class="form-control form-control-sm" min="1"
+                               max="999" step="1" inputmode="numeric">
+                        <div class="invalid-feedback" id="error-cantidadIngreso"></div>
+                    </div>
+                    <div class="col-8 col-md-6">
+                        <label for="motivoIngreso" class="form-label small">Motivo *</label>
+                        <input type="text" id="motivoIngreso" class="form-control form-control-sm" maxlength="200"
+                               autocomplete="off" placeholder="Ej. Compra a Gamarra, guía 0123">
+                        <div class="invalid-feedback" id="error-motivoIngreso"></div>
+                    </div>
+                    <div class="col-12 col-md-4 d-flex gap-2">
+                        <button type="submit" id="btnGuardarIngreso" class="btn btn-sm btn-success">Registrar ingreso</button>
+                        <button type="button" id="btnCancelarIngreso" class="btn btn-sm btn-outline-secondary">Cancelar</button>
+                    </div>
+                </form>
+
                 <!-- Alta y edición de variante (solo administrador y producto activo) -->
                 <form id="formVariante" class="row g-2 align-items-end d-none" novalidate>
                     <h4 id="tituloFormVariante" class="h6 col-12 mb-0 mt-2">Agregar talla y color</h4>

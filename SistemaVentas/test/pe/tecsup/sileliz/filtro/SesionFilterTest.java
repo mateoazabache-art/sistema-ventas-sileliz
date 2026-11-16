@@ -19,6 +19,12 @@ import org.junit.Test;
 public class SesionFilterTest {
 
     @Test
+    public void soloElAdministradorRegistraIngresos() {
+        assertTrue(SesionFilter.requiereAdministrador("/api/ingresos", "POST"));
+        assertTrue(SesionFilter.requiereAdministrador("/api/ingresos", "GET"));
+    }
+
+    @Test
     public void usuariosYReportesSoloAdministrador() {
         assertTrue(SesionFilter.requiereAdministrador("/api/usuarios", "GET"));
         assertTrue(SesionFilter.requiereAdministrador("/api/usuarios/3", "PUT"));
