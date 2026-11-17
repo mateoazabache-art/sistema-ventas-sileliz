@@ -1,4 +1,17 @@
-/* Estilos solo de login.html (los generales están en estilos.css) */
+/* Estilos solo de login.html (los generales están en estilos.css).
+   Paleta de la tienda (15 nov): negro del logo y fucsia. login.html no carga Bootstrap,
+   por eso aquí se pone la misma letra que usa Bootstrap en el resto del sistema. */
+
+.pagina-login {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #212529;
+}
+
+.login-imagen {
+    width: 120px;
+    height: auto;
+    margin-bottom: 12px;
+}
 
 .pagina-login {
     min-height: 100vh;
@@ -28,8 +41,10 @@
     flex-direction: column;
     justify-content: center;
     padding: 40px 32px;
-    background: #0056b3;
+    background: #000;
     color: #fff;
+    align-items: center;
+    text-align: center;
 }
 
 .login-logo {
@@ -39,7 +54,7 @@
 }
 
 .login-logo span {
-    opacity: 0.75;
+    color: #d63384;
 }
 
 .login-lema {
@@ -83,7 +98,7 @@
 }
 
 .campo input:focus {
-    outline: 2px solid #0056b3;
+    outline: 2px solid #d63384;
     outline-offset: 1px;
 }
 
@@ -128,10 +143,14 @@
     font-size: 1rem;
     font-weight: bold;
     color: #fff;
-    background: #0056b3;
+    background: #000;
     border: none;
     border-radius: 6px;
     cursor: pointer;
+}
+
+.btn-ingresar:hover {
+    background: #2b2b2b;
 }
 
 .btn-ingresar:disabled {
@@ -152,6 +171,10 @@
 
     .login-logo {
         font-size: 1.8rem;
+    }
+
+    .login-imagen {
+        width: 80px;
     }
 
     .login-lema {

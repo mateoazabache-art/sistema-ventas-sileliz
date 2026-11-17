@@ -102,7 +102,7 @@ INSERT INTO persona (nombres, apellidos, dni, telefono, correo, direccion) VALUE
     ('Elena',        'Torres Ñique',    '70000008', '987000008', NULL,                       'El Porvenir, Trujillo'),
     ('Gabriela',     'Sánchez Alva',    '70000009', NULL,        'gaby.sa@correo.pe',        NULL),
     ('Teresa',       'Morales Díaz',    '70000010', '987000010', NULL,                       'Víctor Larco, Trujillo'),
-    ('Sofía',        'Administradora',  '70000101', '987000101', NULL,                       NULL),
+    ('Rafael',       'Alva León',       '70000101', '987000101', NULL,                       NULL),
     ('Valeria',      'Vendedora',       '70000102', '987000102', NULL,                       NULL);
 
 -- 4.1 Clientes: se enlazan por DNI (no dependemos del numero de id)
