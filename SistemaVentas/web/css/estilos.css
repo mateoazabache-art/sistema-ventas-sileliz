@@ -129,9 +129,33 @@ body {
 }
 
 .boton-tema {
-    line-height: 1;
-    min-width: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    color: #f8f9fa;
+    background: transparent;
     align-self: flex-start;          /* en celular no se estira a todo el ancho */
+    transition: background-color .15s ease, color .15s ease;
+}
+.boton-tema:hover {
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+}
+.boton-tema:focus-visible {
+    outline: 2px solid #f27db4;
+    outline-offset: 2px;
+}
+.boton-tema.activo,
+.boton-tema.activo:hover {
+    color: #f27db4;                  /* luna rellena en fucsia: el modo oscuro está encendido */
+}
+.boton-tema svg {
+    display: block;
 }
 
 /* ---- Botones con la paleta de la tienda ---- */
