@@ -3,8 +3,10 @@ package pe.tecsup.sileliz.util;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -212,5 +214,29 @@ public class ValidadorTest {
     @Test
     public void esTallaPermitida_conTallaNula_devuelveFalse() {
         assertFalse(Validador.esTallaPermitida(null, tallasPermitidas));
+    }
+
+    // ---------- Tallas oficiales de la tienda (L a 4XL) ----------
+
+    @Test
+    public void tallasOficiales_sonDeLA4XLEnOrden() {
+        assertEquals(List.of("L", "XL", "2XL", "3XL", "4XL"),
+                Validador.obtenerTallasPermitidas());
+    }
+
+    @Test
+    public void tallaOficial_enMinusculasYConEspacios_esValida() {
+        assertTrue(Validador.esTallaPermitida("2xl"));
+        assertTrue(Validador.esTallaPermitida(" 4XL "));
+        assertTrue(Validador.esTallaPermitida("L"));
+    }
+
+    @Test
+    public void tallaFueraDeLaTienda_noEsValida() {
+        assertFalse(Validador.esTallaPermitida("5XL"));
+        assertFalse(Validador.esTallaPermitida("M"));
+        assertFalse(Validador.esTallaPermitida("XXL"));
+        assertFalse(Validador.esTallaPermitida(""));
+        assertFalse(Validador.esTallaPermitida(null));
     }
 }
