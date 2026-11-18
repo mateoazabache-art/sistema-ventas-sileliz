@@ -10,7 +10,7 @@
  *   4. Muestra el nombre y el rol del usuario y el botón "Cerrar sesión".
  * Todo con createElement y textContent (nunca innerHTML con datos).
  *
- * Modo oscuro (15 nov): el botón 🌙 / ☀️ pone data-bs-theme="dark" en <html>
+ * Modo oscuro (15 nov; ícono de luna 18 nov): el botón de la luna pone data-bs-theme="dark" en <html>
  * (Bootstrap 5.3 lo trae listo) y la elección se recuerda en este navegador.
  */
 
@@ -187,7 +187,7 @@ function MostrarUsuario(sesion) {
         const btnTema = document.createElement('button');
         btnTema.type = 'button';
         btnTema.id = 'btnTema';
-        btnTema.className = 'btn btn-outline-light btn-sm boton-tema';
+        btnTema.className = 'btn btn-sm boton-tema';
         btnTema.addEventListener('click', CambiarTema);
  
         btnLogout = document.createElement('button');
@@ -220,17 +220,42 @@ function CambiarTema() {
     PintarBotonTema();
 }
 
-/** El botón muestra el modo al que se pasa: 🌙 en claro, ☀️ en oscuro. */
+/*
+ * Íconos de luna de Phosphor Icons (MIT, phosphoricons.com), copiados aquí como trazos SVG
+ * para que funcionen sin internet. Contorno = modo claro; rellena = modo oscuro activo.
+ */
+const ICONO_LUNA = 'M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z';
+const ICONO_LUNA_RELLENA = 'M235.54,150.21a104.84,104.84,0,0,1-37,52.91A104,104,0,0,1,32,120,103.09,103.09,0,0,1,52.88,57.48a104.84,104.84,0,0,1,52.91-37,8,8,0,0,1,10,10,88.08,88.08,0,0,0,109.8,109.8,8,8,0,0,1,10,10Z';
+
+/** Arma el <svg> con createElementNS (sin innerHTML, como en todo el proyecto). */
+function crearIcono(trazo) {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 256 256');
+    svg.setAttribute('width', '20');
+    svg.setAttribute('height', '20');
+    svg.setAttribute('fill', 'currentColor');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    const path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', trazo);
+    svg.appendChild(path);
+    return svg;
+}
+
+/** Luna de contorno en modo claro; luna rellena (fucsia) cuando el modo oscuro está activo. */
 function PintarBotonTema() {
     const btn = document.getElementById('btnTema');
     if (!btn) return;
     const oscuro = document.documentElement.getAttribute('data-bs-theme') === 'dark';
-    btn.textContent = oscuro ? '☀️' : '🌙';
-    const texto = oscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+    btn.replaceChildren(crearIcono(oscuro ? ICONO_LUNA_RELLENA : ICONO_LUNA));
+    btn.classList.toggle('activo', oscuro);
+    btn.setAttribute('aria-pressed', oscuro ? 'true' : 'false');
+    const texto = oscuro ? 'Modo oscuro activado. Cambiar a modo claro' : 'Cambiar a modo oscuro';
     btn.title = texto;
     btn.setAttribute('aria-label', texto);
 }
- 
+
 /** Cerrar sesión: POST api/logout y volver a login.html (aunque falle la red). */
 function ConfigurarBotonLogout() {
     const btnLogout = document.getElementById('btnLogout');
