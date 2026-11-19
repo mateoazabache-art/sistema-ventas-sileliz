@@ -18,7 +18,15 @@ Este registro documenta las consultas y soporte técnico asistido por IA utiliza
 
 * **Fecha:** 5 al 13 de noviembre de 2026  
 * **Participante:** Luz (Módulo de Ventas)  
-* **Herramienta:** Claude (Anthropic), en dos chats: el primero se llenó de archivos y el segundo continuó con el archivo de contexto del proyecto.  
+* **Herramienta:** Claude (Anthropic), en dos chats: el primero se llenó de archivos y el segundo continuó con el archivo de contexto del proyecto.
+  
+### Errores de la IA y cómo se corrigieron:
+- (Qué falló en clientes.js y clientes.html cuando se unió el PR #20, y cómo se corrigió el 11 y 12 de noviembre en el PR #35)
+- (Qué faltaba validar en ClienteService)
+
+### Cómo se comprobó:
+- (Qué pruebas JUnit se corrieron y cuántas pasaron)
+- (Qué se probó a mano en la página, como admin y como vendedor) 
 
 ### Principales consultas y contribuciones asistidas:
 1. **Backend de ventas (`VentaService`, `VentaServlet`, DAO):** registrar venta con transacción (todo o nada), consultar por id, historial paginado con filtro de fechas y anular venta con reposición de stock y registro en el kardex.
