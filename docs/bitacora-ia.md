@@ -13,6 +13,17 @@ Este registro documenta las consultas y soporte técnico asistido por IA utiliza
 2. **Frontend Seguro (`clientes.html` y `clientes.js`):** Pautas de implementación usando llamadas asíncronas (`fetch`) y manipulación de elementos mediante `textContent` para mitigar vulnerabilidades XSS.
 3. **Documentación de Ingeniería:** Estructuración formal de la Tarea 11 (Acta de entrevista, secciones 1 y 2 del informe, plantilla de Pull Request bajo los criterios de seguridad 6.2 y la matriz del plan de pruebas CP-01 al CP-17).
 
+### Errores de la IA y cómo se corrigieron:
+- El `clientes.js` que generó la IA llamaba a una función `api()` que no existe (en `api.js` el objeto se llama `API`) y declaraba `let paginaActual`, que choca con la función del mismo nombre de `layout.js`. La página quedaba con la tabla vacía, y así se unió en el PR #20 sin probarla en el navegador. Se corrigió el 11 y 12 de noviembre en el PR #35: `numeroPagina` y `API.get` / `API.post` / `API.put` / `API.delete`.
+- `clientes.html` no partía de `plantilla.html` (no salía el menú) y el botón "Nuevo cliente" llamaba a `mostrarFormulario()`, que nunca se escribió. Se rehízo con el formulario de alta y edición, `validaciones.js` y la paginación.
+- `ClienteService` no validaba el correo ni el largo de los campos en el servidor; se agregó en el PR #35 usando `Validador`. Desactivar clientes quedó solo para el administrador (PR #34 de Rafael, en `SesionFilter`).
+- Los documentos de la tarea 11 (acta, informe, plan de pruebas) quedaron como esqueletos con marcas `[cite]` de la IA; los completó Rafael como suplente el 14 de noviembre.
+- Las correcciones del 11 y 12 de noviembre se hicieron junto con Rafael, usando Claude.
+
+### Cómo se comprobó:
+- Pruebas JUnit en NetBeans: `ClienteDaoTest` (8) y `ClienteServiceTest` (11). El 12 de noviembre pasaron las 128 pruebas del proyecto en mi Mac, después de recrear la base con los scripts 02 y 03.
+- A mano en la página: alta, DNI repetido (409), DNI de 7 dígitos, edición, paginación y desactivar como administrador; como vendedor, sin el botón Desactivar.
+- Lección: el revisor debe abrir la pantalla en su computadora antes de aprobar (lista 6.2 del plan).
 
 ## Registro de Asistencia Técnica · Luz
 
