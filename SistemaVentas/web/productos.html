@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Productos - Gestión de Ventas Sileliz</title>
+    <link rel="icon" href="img/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="img/favicon-192.png" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <header>
+        <h1>Sistema de Ventas - Sileliz</h1>
+        <nav>
+            <ul>
+                <!-- layout.js arma el menú según el rol -->
+            </ul>
+        </nav>
+    </header>
+
+    <main id="contenido-principal">
+        <h2>Productos</h2>
+
+        <!-- Mensajes de éxito y de error -->
+        <div id="mensaje-ok" class="alert alert-success d-none" role="status"></div>
+        <div id="mensaje-error" class="alert alert-danger d-none" role="alert"></div>
+
+        <!-- Buscador y filtro -->
+        <form id="formBuscar" class="row g-2 mb-3">
+            <div class="col-12 col-md-5">
+                <label for="txtBuscar" class="visually-hidden">Buscar por nombre o código</label>
+                <input type="text" id="txtBuscar" class="form-control" maxlength="100"
+                       placeholder="Buscar por nombre o código...">
+            </div>
+            <div class="col-12 col-md-3">
+                <label for="selFiltroCategoria" class="visually-hidden">Categoría</label>
+                <select id="selFiltroCategoria" class="form-select">
+                    <option value="0">Todas las categorías</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Buscar</button>
+            </div>
+            <div class="col-6 col-md-2 text-end">
+                <button type="button" id="btnNuevo" class="btn btn-success w-100 d-none">+ Nuevo producto</button>
+            </div>
+        </form>
+
+        <!-- Formulario de producto: alta y edición (solo administrador) -->
+        <section id="seccionProducto" class="card mb-4 d-none">
+            <div class="card-body">
+                <h3 id="tituloProducto" class="h5 card-title">Nuevo producto</h3>
+                <div id="mensaje-producto" class="alert alert-danger d-none" role="alert"></div>
+
+                <form id="formProducto" class="row g-3" novalidate>
+                    <div class="col-12 col-md-3">
+                        <label for="codigo" class="form-label">Código *</label>
+                        <input type="text" id="codigo" class="form-control" maxlength="20" autocomplete="off"
+                               placeholder="Ej. P-021">
+                        <div class="invalid-feedback" id="error-codigo"></div>
+                    </div>
+                    <div class="col-12 col-md-5">
+                        <label for="nombre" class="form-label">Nombre *</label>
+                        <input type="text" id="nombre" class="form-control" maxlength="100" autocomplete="off">
+                        <div class="invalid-feedback" id="error-nombre"></div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label for="categoria" class="form-label">Categoría *</label>
+                        <select id="categoria" class="form-select">
+                            <option value="">Seleccione...</option>
+                        </select>
+                        <div class="invalid-feedback" id="error-categoria"></div>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <input type="text" id="descripcion" class="form-control" maxlength="250" autocomplete="off">
+                        <div class="invalid-feedback" id="error-descripcion"></div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label for="precioVenta" class="form-label">Precio de venta (S/) *</label>
+                        <input type="number" id="precioVenta" class="form-control" min="0.01" step="0.01"
+                               inputmode="decimal">
+                        <div class="invalid-feedback" id="error-precioVenta"></div>
+                    </div>
+                    <div class="col-12 d-flex gap-2">
+                        <button type="submit" id="btnGuardarProducto" class="btn btn-primary">Guardar</button>
+                        <button type="button" id="btnCancelarProducto" class="btn btn-outline-secondary">Cancelar</button>
+                    </div>
+                    <p class="text-muted small mb-0">
+                        Los campos con * son obligatorios. Después de guardar se agregan las tallas y colores.
+                    </p>
+                </form>
+            </div>
+        </section>
+
+        <!-- Tabla de productos -->
+        <div class="table-responsive">
+            <table class="table table-striped align-middle" id="tablaProductos">
+                <thead>
+                    <tr>
+                        <th class="d-none d-md-table-cell">Código</th>
+                        <th>Nombre</th>
+                        <th class="d-none d-md-table-cell">Categoría</th>
+                        <th class="text-end">Precio</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        <nav aria-label="Páginas de productos">
+            <ul id="paginacion" class="pagination justify-content-center flex-wrap mt-3 mb-1"></ul>
+        </nav>
+        <p id="infoPaginacion" class="text-center text-muted small"></p>
+
+        <!-- Variantes del producto elegido -->
+        <section id="seccionVariantes" class="card mt-4 mb-5 d-none">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                    <div>
+                        <h3 id="tituloVariantes" class="h5 card-title mb-1">Tallas y colores</h3>
+                        <p class="text-muted small mb-0">
+                            El stock lo suman los ingresos de mercadería y lo descuentan las ventas;
+                            aquí no se escribe a mano.
+                        </p>
+                    </div>
+                    <button type="button" id="btnCerrarVariantes" class="btn btn-sm btn-outline-secondary">Cerrar</button>
+                </div>
+
+                <div id="mensaje-variante" class="alert alert-danger d-none mt-3" role="alert"></div>
+
+                <div class="table-responsive mt-3">
+                    <table class="table table-sm align-middle" id="tablaVariantes">
+                        <thead>
+                            <tr>
+                                <th>Talla</th>
+                                <th>Color</th>
+                                <th>SKU</th>
+                                <th class="text-end">Stock</th>
+                                <th class="text-end">Mínimo</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <!-- Ingreso de mercadería (solo administrador): suma stock y lo anota en el kárdex -->
+                <form id="formIngreso" class="row g-2 align-items-end border rounded p-2 mb-3 bg-light d-none" novalidate>
+                    <h4 id="tituloIngreso" class="h6 col-12 mb-0">Ingreso de mercadería</h4>
+                    <div class="col-4 col-md-2">
+                        <label for="cantidadIngreso" class="form-label small">Cantidad *</label>
+                        <input type="number" id="cantidadIngreso" class="form-control form-control-sm" min="1"
+                               max="999" step="1" inputmode="numeric">
+                        <div class="invalid-feedback" id="error-cantidadIngreso"></div>
+                    </div>
+                    <div class="col-8 col-md-6">
+                        <label for="motivoIngreso" class="form-label small">Motivo *</label>
+                        <input type="text" id="motivoIngreso" class="form-control form-control-sm" maxlength="200"
+                               autocomplete="off" placeholder="Ej. Compra a Gamarra, guía 0123">
+                        <div class="invalid-feedback" id="error-motivoIngreso"></div>
+                    </div>
+                    <div class="col-12 col-md-4 d-flex gap-2">
+                        <button type="submit" id="btnGuardarIngreso" class="btn btn-sm btn-success">Registrar ingreso</button>
+                        <button type="button" id="btnCancelarIngreso" class="btn btn-sm btn-outline-secondary">Cancelar</button>
+                    </div>
+                </form>
+
+                <!-- Alta y edición de variante (solo administrador y producto activo) -->
+                <form id="formVariante" class="row g-2 align-items-end d-none" novalidate>
+                    <h4 id="tituloFormVariante" class="h6 col-12 mb-0 mt-2">Agregar talla y color</h4>
+                    <div class="col-6 col-md-2">
+                        <label for="talla" class="form-label small">Talla *</label>
+                        <select id="talla" class="form-select form-select-sm">
+                            <option value="">Cargando tallas...</option>
+                        </select>
+                        <div class="invalid-feedback" id="error-talla"></div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label for="color" class="form-label small">Color *</label>
+                        <input type="text" id="color" class="form-control form-control-sm" maxlength="30"
+                               autocomplete="off" placeholder="Ej. Negro">
+                        <div class="invalid-feedback" id="error-color"></div>
+                    </div>
+                    <div class="col-8 col-md-3">
+                        <label for="sku" class="form-label small">SKU *</label>
+                        <input type="text" id="sku" class="form-control form-control-sm" maxlength="30"
+                               autocomplete="off">
+                        <div class="invalid-feedback" id="error-sku"></div>
+                    </div>
+                    <div class="col-4 col-md-1">
+                        <label for="stockMinimo" class="form-label small">Mínimo *</label>
+                        <input type="number" id="stockMinimo" class="form-control form-control-sm" min="0"
+                               step="1" value="2" inputmode="numeric">
+                        <div class="invalid-feedback" id="error-stockMinimo"></div>
+                    </div>
+                    <div class="col-12 col-md-3 d-flex gap-2">
+                        <button type="submit" id="btnGuardarVariante" class="btn btn-sm btn-primary">Agregar</button>
+                        <button type="button" id="btnCancelarVariante" class="btn btn-sm btn-outline-secondary d-none">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Sistema Ventas - Sileliz</p>
+    </footer>
+
+    <!-- Scripts del proyecto -->
+    <script src="lib/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/validaciones.js"></script>
+    <script src="js/productos.js"></script>
+</body>
+</html>

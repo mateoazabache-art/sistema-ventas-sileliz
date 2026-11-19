@@ -1,0 +1,311 @@
+/* estilos.css - Sileliz.mas. Solo lo PROPIO: colores, tipografía y detalles de marca.
+   La cuadrícula, tablas, formularios y menú colapsable los pone Bootstrap (lib/bootstrap).
+
+   Paleta elegida por la tienda (15 nov): NEGRO del logo + FUCSIA del corazón del logo.
+   - Botón principal: negro (en modo oscuro, fucsia).
+   - Rojo: solo para peligro (desactivar, anular, sin stock). Verde: solo para estados correctos.
+   - Modo oscuro: layout.js pone data-bs-theme="dark" en <html> (botón 🌙 / ☀️ de la barra).
+     Bootstrap 5.3 ya trae los colores oscuros; aquí solo se ajustan los nuestros. */
+
+:root {
+    --color-marca: #000000;          /* negro del logo */
+    --color-marca-suave: #212121;
+    --color-texto-marca: #ffffff;    /* blanco del logo */
+    --color-fondo: #f4f4f4;
+    --color-tarjeta: #ffffff;
+    --color-acento: #d63384;         /* fucsia (corazón del logo) */
+    --color-acento-oscuro: #b02a6b;  /* fucsia para textos y enlaces sobre blanco (se lee mejor) */
+    --color-acento-suave: #fbe3ef;
+    --color-alerta: #dc3545;         /* stock bajo y peligro */
+    --color-pie: #e9ecef;
+    --color-pie-texto: #495057;
+    --color-boton: #000000;          /* botón principal */
+    --color-boton-hover: #2b2b2b;
+    --color-boton-texto: #ffffff;
+
+    /* Bootstrap: enlaces y foco en fucsia */
+    --bs-link-color: var(--color-acento-oscuro);
+    --bs-link-color-rgb: 176, 42, 107;
+    --bs-link-hover-color: #8a1f53;
+    --bs-link-hover-color-rgb: 138, 31, 83;
+    --bs-focus-ring-color: rgba(214, 51, 132, .25);
+}
+
+[data-bs-theme="dark"] {
+    --color-fondo: #121214;
+    --color-tarjeta: #1d1d21;
+    --color-acento-oscuro: #f06aa9;  /* en fondo oscuro el fucsia claro se lee mejor */
+    --color-acento-suave: #3a1a2b;
+    --color-pie: #0b0b0d;
+    --color-pie-texto: #a7a7ad;
+    --color-boton: #d63384;          /* en oscuro el negro no se vería: el principal pasa a fucsia */
+    --color-boton-hover: #e0559a;
+    --color-boton-texto: #ffffff;
+    --bs-link-color-rgb: 240, 106, 169;
+    --bs-link-hover-color: #f7a3cb;
+    --bs-link-hover-color-rgb: 247, 163, 203;
+}
+
+body {
+    background-color: var(--color-fondo);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ---- Barra superior (la arma layout.js con la navbar de Bootstrap) ---- */
+.barra-sileliz {
+    background-color: var(--color-marca);
+    color: var(--color-texto-marca);
+    padding-top: .4rem;
+    padding-bottom: .4rem;
+}
+
+.barra-sileliz .navbar-brand {
+    font-weight: 600;
+    letter-spacing: .5px;
+}
+
+.barra-sileliz .logo-barra {
+    width: auto;
+}
+
+.barra-sileliz .nav-link {
+    color: rgba(255, 255, 255, .75);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;             /* "Nueva venta" y "Ventas realizadas" en una sola línea */
+}
+
+/* Con el menú completo del administrador (9 opciones + nombre + botones) la barra
+   se despliega desde 1200 px (navbar-expand-xl en layout.js); hasta 1400 px se compacta. */
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+    .barra-sileliz .navbar-nav .nav-link {
+        padding-left: .4rem;
+        padding-right: .4rem;
+        font-size: .95rem;
+    }
+}
+
+/* Entre 1200 y 1300 px solo cabe el logo (sin el texto "Sileliz.mas") */
+@media (min-width: 1200px) and (max-width: 1299.98px) {
+    .barra-sileliz .navbar-brand span {
+        display: none;
+    }
+}
+
+.barra-sileliz .nav-link:hover,
+.barra-sileliz .nav-link:focus {
+    color: var(--color-texto-marca);
+}
+
+/* Página actual */
+.barra-sileliz a.activo {
+    color: var(--color-texto-marca);
+    font-weight: 600;
+    border-bottom-color: var(--color-acento);
+}
+
+/* Nombre + rol + modo oscuro + Cerrar sesión */
+.usuario-sesion {
+    color: var(--color-texto-marca);
+    font-size: .9rem;
+}
+
+.usuario-sesion .usuario-etiqueta,
+.usuario-sesion .btn {
+    white-space: nowrap;
+}
+
+.usuario-sesion .rol-etiqueta {
+    display: inline-block;
+    margin-left: .35rem;
+    padding: .1rem .5rem;
+    border-radius: 999px;
+    background: var(--color-acento);
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.boton-tema {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    color: #f8f9fa;
+    background: transparent;
+    align-self: flex-start;          /* en celular no se estira a todo el ancho */
+    transition: background-color .15s ease, color .15s ease;
+}
+.boton-tema:hover {
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+}
+.boton-tema:focus-visible {
+    outline: 2px solid #f27db4;
+    outline-offset: 2px;
+}
+.boton-tema.activo,
+.boton-tema.activo:hover {
+    color: #f27db4;                  /* luna rellena en fucsia: el modo oscuro está encendido */
+}
+.boton-tema svg {
+    display: block;
+}
+
+/* ---- Botones con la paleta de la tienda ---- */
+/* Principal (Buscar, Guardar, Registrar venta, Nuevo..., Ingresar): negro; fucsia en modo oscuro */
+.btn-primary,
+.btn-success,
+.btn-dark {
+    --bs-btn-color: var(--color-boton-texto);
+    --bs-btn-bg: var(--color-boton);
+    --bs-btn-border-color: var(--color-boton);
+    --bs-btn-hover-color: var(--color-boton-texto);
+    --bs-btn-hover-bg: var(--color-boton-hover);
+    --bs-btn-hover-border-color: var(--color-boton-hover);
+    --bs-btn-active-color: var(--color-boton-texto);
+    --bs-btn-active-bg: var(--color-boton-hover);
+    --bs-btn-active-border-color: var(--color-boton-hover);
+    --bs-btn-disabled-color: var(--color-boton-texto);
+    --bs-btn-disabled-bg: var(--color-boton);
+    --bs-btn-disabled-border-color: var(--color-boton);
+    --bs-btn-focus-shadow-rgb: 214, 51, 132;
+}
+
+/* Secundarios (Editar, Tallas, Ver, Este mes...): borde del color del texto */
+.btn-outline-primary,
+.btn-outline-dark,
+.btn-outline-secondary {
+    --bs-btn-color: var(--bs-emphasis-color);
+    --bs-btn-border-color: var(--bs-emphasis-color);
+    --bs-btn-hover-color: var(--bs-body-bg);
+    --bs-btn-hover-bg: var(--bs-emphasis-color);
+    --bs-btn-hover-border-color: var(--bs-emphasis-color);
+    --bs-btn-active-color: var(--bs-body-bg);
+    --bs-btn-active-bg: var(--bs-emphasis-color);
+    --bs-btn-active-border-color: var(--bs-emphasis-color);
+    --bs-btn-focus-shadow-rgb: 214, 51, 132;
+}
+
+/* "Desactivar" dentro de las tablas: solo borde rojo (el relleno asusta en cada fila) */
+td .btn-danger {
+    --bs-btn-color: var(--color-alerta);
+    --bs-btn-bg: transparent;
+    --bs-btn-border-color: var(--color-alerta);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--color-alerta);
+}
+
+/* Paginación, casillas y foco en la paleta */
+.pagination {
+    --bs-pagination-color: var(--bs-emphasis-color);
+    --bs-pagination-hover-color: var(--bs-emphasis-color);
+    --bs-pagination-focus-color: var(--bs-emphasis-color);
+    --bs-pagination-active-bg: var(--color-boton);
+    --bs-pagination-active-border-color: var(--color-boton);
+    --bs-pagination-focus-box-shadow: 0 0 0 .25rem rgba(214, 51, 132, .25);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--color-acento);
+    box-shadow: 0 0 0 .25rem rgba(214, 51, 132, .25);
+}
+
+.form-check-input:checked {
+    background-color: var(--color-acento);
+    border-color: var(--color-acento);
+}
+
+/* Ayuda: el tema abierto en fucsia suave */
+.accordion {
+    --bs-accordion-active-bg: var(--color-acento-suave);
+    --bs-accordion-active-color: var(--bs-emphasis-color);
+    --bs-accordion-btn-focus-box-shadow: 0 0 0 .25rem rgba(214, 51, 132, .25);
+}
+
+/* Inicio: el total vendido del día en fucsia */
+#valor-total {
+    color: var(--color-acento-oscuro);
+    font-weight: 600;
+}
+
+/* ---- Contenido y pie ---- */
+main {
+    width: 100%;
+    max-width: 1100px;
+    margin: 1.5rem auto;
+    padding: 1.25rem;
+    background: var(--color-tarjeta);
+    border-radius: .5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .1);
+}
+
+footer {
+    margin-top: auto;               /* se queda abajo sin tapar el contenido */
+    text-align: center;
+    padding: .75rem;
+    background: var(--color-pie);
+    color: var(--color-pie-texto);
+    font-size: .85rem;
+}
+
+/* Stock bajo en rojo (lo usan Inicio y Productos) */
+.stock-bajo {
+    color: var(--color-alerta);
+    font-weight: 600;
+}
+
+/* ---- Modo oscuro: piezas que Bootstrap deja claras ---- */
+[data-bs-theme="dark"] .bg-light {
+    background-color: var(--bs-tertiary-bg) !important;
+}
+
+/* El comprobante es "papel": siempre blanco con letra negra, también en modo oscuro */
+[data-bs-theme="dark"] .comprobante {
+    --bs-body-color: #212529;
+    --bs-body-bg: #fff;
+    --bs-emphasis-color: #000;
+    --bs-secondary-color: #6c757d;
+    --bs-border-color: #dee2e6;
+    color: #212529;
+}
+
+[data-bs-theme="dark"] .comprobante .table {
+    --bs-table-color: #212529;
+    --bs-table-bg: #fff;
+    --bs-table-border-color: #dee2e6;
+    --bs-table-striped-color: #212529;
+    --bs-table-striped-bg: #f2f2f2;
+    --bs-table-hover-color: #212529;
+    --bs-table-hover-bg: #ececec;
+}
+
+/* ---- Impresión (comprobante): sin menú, botones ni pie, y siempre en blanco ---- */
+@media print {
+    header,
+    footer,
+    .no-imprimir {
+        display: none !important;
+    }
+
+    body,
+    main {
+        background: #fff !important;
+        color: #000;
+    }
+
+    main {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        border-radius: 0;
+    }
+}

@@ -1,0 +1,58 @@
+---
+title: Gestión de Ventas Sileliz.mas — Secuencia de CU-05 Registrar venta (código real, 18 nov 2026)
+---
+sequenceDiagram
+    autonumber
+    actor V as Vendedor
+    participant P as venta-nueva.html<br/>(venta-nueva.js + api.js)
+    participant F as SesionFilter
+    participant S as VentaServlet
+    participant VS as VentaService
+    participant VD as VarianteDao
+    participant BD as PostgreSQL<br/>(ventas_db)
+
+    V->>P: Busca cliente (DNI o consumidor final) y agrega prendas al carrito
+    P->>P: Vista previa: subtotal, descuento, base, IGV y total (solo informativa)
+    V->>P: Registrar venta
+    P->>F: POST /api/ventas {idCliente, metodoPago, tipoDescuento, valorDescuento, lineas[idVariante, cantidad]}
+    F->>F: ¿Hay sesión? (401) · ¿Content-Type JSON? (415)
+    F->>S: doPost(req, resp)
+    S->>S: Json.leer → VentaSolicitud
+    S->>S: SesionFilter.usuarioActual(req) (el vendedor sale de la sesión, nunca del JSON)
+    S->>VS: registrar(solicitud, usuario)
+    VS->>VS: Tope 10 % de descuento especial si no es administrador (RN-14) → 400
+    VS->>VS: Validar líneas, método de pago y DescuentoFactory.crear → 400
+
+    rect rgba(200, 200, 200, 0.15)
+    note over VS,BD: A. Boleta "en papel" (sin transacción)
+    loop por cada línea
+        VS->>VD: buscarPorId(idVariante)
+        VD->>BD: SELECT variante + producto
+        BD-->>VD: fila (precio de la base, no del navegador)
+        VD-->>VS: VarianteProducto (404 si no existe, 400 si inactiva)
+        VS->>VS: venta.agregarDetalle(new DetalleVenta(...))
+    end
+    VS->>VS: venta.calcularTotales(descuento) → base = total / 1.18, IGV = total − base
+    end
+
+    rect rgba(214, 51, 132, 0.10)
+    note over VS,BD: B. Caja fuerte: una sola transacción (setAutoCommit(false))
+    VS->>BD: VentaDao.insertar → INSERT venta (serie B001 y número de seq_correlativo)
+    loop por cada detalle, ordenado por idVariante (evita deadlocks)
+        VS->>BD: VentaDao.insertarDetalle → INSERT detalle_venta
+        VS->>VD: descontarStock(cn, idVariante, cantidad)
+        VD->>BD: UPDATE variante_producto SET stock = stock − ? WHERE id = ? AND stock >= ?
+        alt no había stock (0 filas actualizadas)
+            VS->>BD: ROLLBACK (no se guarda nada)
+            VS-->>S: StockInsuficienteException
+            S-->>P: 409 {"error": "No hay stock suficiente de …"}
+        else hay stock
+            VS->>BD: MovimientoDao.insertar → INSERT movimiento_stock (VENTA, −cantidad)
+        end
+    end
+    VS->>BD: COMMIT
+    end
+
+    VS-->>S: Venta (idVenta, serie, número, totales)
+    S-->>P: 201 Created (JSON)
+    P-->>V: "Venta B001-000015 registrada correctamente" + enlace al comprobante

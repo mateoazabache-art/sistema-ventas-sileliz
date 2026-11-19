@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ayuda · Sileliz.mas</title>
+    <link rel="icon" href="img/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="img/favicon-192.png" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+    <!-- layout.js reemplaza este header por la barra con el menú según el rol -->
+    <header><h1>Sileliz.mas</h1><nav><ul></ul></nav></header>
+
+    <!-- RF-17 (Podría): página de Ayuda. Solo texto fijo: no pide datos al servidor. -->
+    <main class="container my-4">
+        <h2 class="h4 mb-1">Ayuda</h2>
+        <p class="text-muted mb-4">
+            Guía rápida del sistema. Toque cada tema para ver los pasos.
+            Las instrucciones marcadas como
+            <span class="badge text-bg-secondary">Solo administrador</span>
+            solo se muestran a los usuarios con ese rol.
+        </p>
+
+        <div class="accordion" id="temasAyuda">
+
+            <!-- 1. Ingresar -->
+            <div class="accordion-item">
+                <h3 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#ayuda-ingresar" aria-expanded="true" aria-controls="ayuda-ingresar">
+                        Ingresar y salir del sistema
+                    </button>
+                </h3>
+                <div id="ayuda-ingresar" class="accordion-collapse collapse show" data-bs-parent="#temasAyuda">
+                    <div class="accordion-body">
+                        <ol>
+                            <li>Escriba su usuario y su clave y presione <strong>Ingresar</strong>.</li>
+                            <li>Si se equivoca 5 veces seguidas, la cuenta se bloquea 15 minutos. Espere o pida al administrador que le restablezca la clave.</li>
+                            <li>Si no usa el sistema por 30 minutos, la sesión se cierra sola y tendrá que ingresar de nuevo.</li>
+                            <li>Para salir, presione <strong>Cerrar sesión</strong> en la barra de arriba.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Vender -->
+            <div class="accordion-item">
+                <h3 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#ayuda-vender" aria-expanded="false" aria-controls="ayuda-vender">
+                        Registrar una venta
+                    </button>
+                </h3>
+                <div id="ayuda-vender" class="accordion-collapse collapse" data-bs-parent="#temasAyuda">
+                    <div class="accordion-body">
+                        <ol>
+                            <li>Entre a <strong>Nueva venta</strong>.</li>
+                            <li>Cliente: escriba su DNI y presione <strong>Buscar</strong>. Si la clienta no quiere dar sus datos, presione <strong>Consumidor final</strong> (el comprobante dirá "Cliente: Varios").</li>
+                            <li>Busque la prenda por nombre o por código (SKU) y presione <strong>Agregar</strong>. Si una talla no tiene stock, el botón aparece desactivado.</li>
+                            <li>En el carrito puede cambiar la cantidad; el sistema no deja pasar del stock disponible.</li>
+                            <li>Elija el descuento: <strong>15 % desde 3 prendas</strong> o un porcentaje especial (el vendedor puede dar hasta 10 %; para más, el administrador).</li>
+                            <li>Elija el método de pago (Efectivo, Yape, Plin, Tarjeta o Transferencia) y presione <strong>Registrar venta</strong>.</li>
+                            <li>El sistema muestra el número del comprobante (por ejemplo B001-000120) y el enlace <strong>Ver comprobante</strong>.</li>
+                        </ol>
+                        <p class="mb-0">Los totales que se ven antes de guardar son una vista previa: el servidor vuelve a calcular el total, la base imponible y el IGV (18 %, incluido en el precio).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Comprobante -->
+            <div class="accordion-item">
+                <h3 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#ayuda-comprobante" aria-expanded="false" aria-controls="ayuda-comprobante">
+                        Ver e imprimir el comprobante
+                    </button>
+                </h3>
+                <div id="ayuda-comprobante" class="accordion-collapse collapse" data-bs-parent="#temasAyuda">
+                    <div class="accordion-body">
+                        <ol>
+                            <li>Después de vender, presione <strong>Ver comprobante</strong>. También puede abrirlo desde <strong>Ventas realizadas</strong> con el botón <strong>Ver</strong>.</li>
+                            <li>Presione <strong>Imprimir</strong>.</li>
+                        </ol>
+                        <p class="mb-0">Es un comprobante interno, sin valor tributario.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Ventas realizadas y anular -->
+            <div class="accordion-item">
+                <h3 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#ayuda-ventas" aria-expanded="false" aria-controls="ayuda-ventas">
+                        Consultar o anular ventas
+                    </button>
+                </h3>
+                <div id="ayuda-ventas" class="accordion-collapse collapse" data-bs-parent="#temasAyuda">
+                    <div class="accordion-body">
+                        <ol>
+                            <li>Entre a <strong>Ventas realizadas</strong>, elija las fechas <em>Desde</em> y <em>Hasta</em> y presione <strong>Buscar</strong>.</li>
+                            <li>El vendedor ve solo sus propias ventas; el administrador ve todas.</li>
+                            <li class="d-none" data-solo-admin>
+                                <span class="badge text-bg-secondary">Solo administrador</span>
+                                Para anular, presione <strong>Anular</strong>, escriba el motivo y confirme.
+                                Las prendas vuelven al stock y la venta queda marcada como anulada (no se borra).
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Productos e ingreso de mercadería -->
+            <div class="accordion-item">
+                <h3 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#ayuda-productos" aria-expanded="false" aria-controls="ayuda-productos">
+                        Productos, tallas y llegada de mercadería
+                    </button>
+                </h3>
+                <div id="ayuda-productos" class="accordion-collapse collapse" data-bs-parent="#temasAyuda">
+                    <div class="accordion-body">
+                        <ul>
+                            <li>En <strong>Productos</strong> puede buscar por nombre o código y filtrar por categoría. El vendedor solo consulta.</li>
+                            <li>Cada producto tiene sus tallas y colores. <span class="badge text-bg-warning">Stock bajo</span> significa que quedan pocas unidades (igual o menos que el mínimo) y <span class="badge text-bg-danger">Sin stock</span> que no queda ninguna.</li>
+                        </ul>
+                        <p class="mb-1 d-none" data-solo-admin>
+                            <span class="badge text-bg-secondary">Solo administrador</span>
+                            <strong>Cuando llega mercadería:</strong>
+                        </p>
+                        <ol class="d-none" data-solo-admin>
+                            <li>Busque el producto y presione <strong>Tallas</strong>.</li>
+                            <li>En la talla que llegó, presione el botón verde <strong>Ingresar</strong>.</li>
+                            <li>Escriba la cantidad (de 1 a 999) y el motivo, por ejemplo "Compra a Gamarra, guía 015", y presione <strong>Registrar ingreso</strong>.</li>
+                        </ol>
+                        <p class="mb-0">El stock no se escribe a mano: solo cambia con una venta, una anulación o un ingreso, y cada cambio queda anotado en el kárdex con la fecha y el usuario.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Clientes -->
+            <div class="accordion-item">
+                <h3 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#ayuda-clientes" aria-expanded="false" aria-controls="ayuda-clientes">
+                        Clientes
+                    </button>
+                </h3>
+                <div id="ayuda-clientes" class="accordion-collapse collapse" data-bs-parent="#temasAyuda">
+                    <div class="accordion-body">
+                        <ul class="mb-0">
+                            <li>En <strong>Clientes</strong> puede buscar por nombre o DNI, registrar y editar.</li>
+                            <li>El DNI tiene 8 dígitos y no se puede repetir. El teléfono tiene 9 dígitos y empieza con 9. El correo y la dirección son opcionales.</li>
+                            <li class="d-none" data-solo-admin>
+                                <span class="badge text-bg-secondary">Solo administrador</span>
+                                Un cliente no se borra: se desactiva, para no perder sus compras.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Reportes y usuarios -->
+            <div class="accordion-item d-none" data-solo-admin>
+                <h3 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#ayuda-admin" aria-expanded="false" aria-controls="ayuda-admin">
+                        Reportes y usuarios
+                        <span class="badge text-bg-secondary ms-2">Solo administrador</span>
+                    </button>
+                </h3>
+                <div id="ayuda-admin" class="accordion-collapse collapse" data-bs-parent="#temasAyuda">
+                    <div class="accordion-body">
+                        <ul class="mb-0">
+                            <li><strong>Reportes:</strong> elija un rango de fechas (o los botones <em>Este mes</em> y <em>Hoy</em>) para ver el total vendido, las prendas más vendidas y las ventas de cada vendedor.</li>
+                            <li><strong>Usuarios:</strong> registre a las vendedoras con su usuario y una clave inicial de al menos 8 caracteres con letras y números. Si una vendedora olvida su clave o queda bloqueada, use <strong>Restablecer clave</strong>. Cuando alguien deja de trabajar en la tienda, se desactiva su usuario (sus ventas se conservan).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. Problemas frecuentes -->
+            <div class="accordion-item">
+                <h3 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#ayuda-problemas" aria-expanded="false" aria-controls="ayuda-problemas">
+                        Problemas frecuentes
+                    </button>
+                </h3>
+                <div id="ayuda-problemas" class="accordion-collapse collapse" data-bs-parent="#temasAyuda">
+                    <div class="accordion-body">
+                        <dl class="mb-0">
+                            <dt>"No hay stock suficiente"</dt>
+                            <dd>Otra persona vendió esa prenda mientras usted armaba el carrito. Baje la cantidad o elija otra talla.</dd>
+                            <dt>"No tiene permiso para esta acción"</dt>
+                            <dd>Esa opción es solo del administrador.</dd>
+                            <dt>La página volvió a la pantalla de ingreso</dt>
+                            <dd>La sesión se cerró por 30 minutos sin uso. Ingrese de nuevo.</dd>
+                            <dt>"Ocurrió un error inesperado"</dt>
+                            <dd>Intente otra vez. Si se repite, avise al administrador con la hora y lo que estaba haciendo.</dd>
+                            <dt>La página se ve rara o no cambia</dt>
+                            <dd>Presione <kbd>Ctrl</kbd> + <kbd>F5</kbd> para recargarla.</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Sistema Ventas - Sileliz</p>
+    </footer>
+
+    <script src="lib/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/ayuda.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+[
+    {
+        "idCategoria": 1,
+        "nombre": "Blusas y polos",
+        "activo": true
+    },
+    {
+        "idCategoria": 2,
+        "nombre": "Pantalones",
+        "activo": true
+    },
+    {
+        "idCategoria": 3,
+        "nombre": "Jeans",
+        "activo": true
+    },
+    {
+        "idCategoria": 4,
+        "nombre": "Vestidos y enterizos",
+        "activo": true
+    },
+    {
+        "idCategoria": 5,
+        "nombre": "Ropa interior y fajas",
+        "activo": true
+    }
+]
