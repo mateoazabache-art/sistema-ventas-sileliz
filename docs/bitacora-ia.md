@@ -80,3 +80,33 @@ Este registro documenta las consultas y soporte técnico asistido por IA utiliza
 - Antes de cada commit, la IA comparaba el archivo de mi PC con el que había probado.
 - Los casos CP-01 a CP-16 los ejecuté yo en mi PC el 16 de noviembre, con capturas.
 - Lo que no entendía, lo pedía explicado con ejemplos sencillos (por ejemplo: "la venta es una caja fuerte: entra todo o no entra nada") y hacía preguntas de práctica para la sustentación.
+
+## Registro de Asistencia Técnica · Cesia
+
+* **Fecha:** 9 al 23 de noviembre de 2026  
+* **Participante:** Cesia Chapilliquen (Web, diseño y comprobante)  
+* **Herramienta:** Claude (Anthropic). Cada sesión empezaba con mi reporte de avance y el archivo de contexto del proyecto, y yo ejecutaba los comandos en mi terminal.  
+
+### Principales consultas y contribuciones asistidas:
+1. **Base de las páginas (`plantilla.html`, `api.js`, `layout.js`):** el cliente de la API con `fetch` (get, post, put, delete y manejo de 401) y el menú según el rol, armado con `createElement` y `textContent`.
+2. **Ingreso (`login.html`, `login.js`, `login.css`):** panel dividido, botón para mostrar la clave, validación de campos vacíos y mensajes del servidor (401 y 423).
+3. **Estilos base (PR #33):** Bootstrap 5.3.3 local, favicon, logo, `estilos.css` con variables de color, navbar colapsable armada desde `layout.js` y estilos de impresión (`@media print`).
+4. **Inicio (`index.html`, `index.js`):** saludo, tarjetas con `GET /api/estadisticas/hoy` y accesos rápidos (Reportes solo para el administrador).
+5. **Comprobante (`comprobante.html`, `comprobante.js`, `comprobante.css`, PR #47):** se arma con `GET /api/ventas/{id}`, muestra descuento, operación gravada, IGV y total tal como vienen del servidor, sello ANULADA y botón Imprimir.
+6. **Usuarios:** una primera versión de `usuarios.html` y `usuarios.js`, ajustada a la API real. No se subió: se usó la de Rafael como mi suplente (PR #60).
+7. **Revisión de Pull Requests (#31, #32, #50, #53, #60 y #64):** pasos de prueba y lista de seguridad 6.2. También una guía de estudio para la sustentación.
+
+### Errores de la IA y cómo se corrigieron:
+- La primera versión de `api.js` y `layout.js` tenía 7 problemas: redirigía a `login.jsp`, leía `data.mensaje` en vez de `data.error`, sacaba al usuario también con 403, no tenía PUT ni DELETE, la ruta de estadísticas era otra, el menú no cambiaba por rol y el login se recargaba solo. Los encontré en la revisión y probando en el navegador.
+- En `plantilla.html` quedaron repetidos los scripts de `api.js` y `layout.js`, y la consola decía que `API` ya estaba declarada. Borré los repetidos.
+- El comprobante decía "Boleta de venta interna", y podía confundirse con una boleta de SUNAT. Lo cambié a "Comprobante interno, sin valor tributario. No válido como boleta ni factura". El lema provisional del encabezado tampoco era el de la tienda; lo cambié a "Más que una talla" cuando Rafael confirmó la decisión del dueño.
+- En el comprobante, la línea sobre el TOTAL salía partida y el botón "Ver ventas" parecía desactivado. Se corrigió con `column-gap: 0` y un botón con borde oscuro.
+- En `usuarios.js` usó el campo `id`, pero la API devuelve `idPersona`; lo vi en el JSON real. Además, al editar sin reenviar teléfono, correo y dirección, el servidor los dejaba en `null`.
+- Varias veces el navegador mostró archivos viejos (HTML nuevo con JavaScript viejo) y daba "Cannot set properties of null". Se arregló vaciando la caché.
+
+### Errores míos que la IA ayudó a detectar:
+- Dejé `usuarios.html` en `WEB-INF`, una carpeta privada que Tomcat no sirve, y lo moví fuera del repositorio.
+- Pegué dos comandos en una sola línea y Git dijo "unknown switch". Desde entonces pego los comandos uno por uno.
+
+### Cómo se comprobó:
+- Clean and Build y las pruebas JUnit en NetBeans; después de traer `main` (v1.0) recreé la base con `recrear_bd.cmd`
