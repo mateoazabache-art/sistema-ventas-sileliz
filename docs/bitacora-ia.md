@@ -110,3 +110,38 @@ Este registro documenta las consultas y soporte técnico asistido por IA utiliza
 
 ### Cómo se comprobó:
 - Clean and Build y las pruebas JUnit en NetBeans; después de traer `main` (v1.0) recreé la base con `recrear_bd.cmd`
+
+## Registro de Asistencia Técnica · Naomi
+
+* **Fecha:** 3 al 20 de noviembre de 2026
+* **Participante:** Naomi Xiomara Calderón Paredes (Módulo de Catálogo: productos, categorías, variantes, tallas y validaciones)
+* **Herramienta:** ChatGPT (OpenAI). Las consultas se trabajaron revisando el código real del proyecto y ejecutando los cambios en mi computadora.
+
+### Principales consultas y contribuciones asistidas:
+1. **Modelos y validaciones del catálogo (`Producto`, `VarianteProducto`, `Validador.java` y `validaciones.js`):** apoyo para revisar las reglas de los productos y sus variantes, validar los datos de los formularios y mantener las validaciones tanto en el frontend como en el backend.
+2. **Acceso a datos (`CategoriaDao`, `ProductoDao` y `VarianteDao`):** consultas sobre las operaciones de acceso a la base de datos, sus relaciones y el manejo de las variantes y tallas.
+3. **Servicios del catálogo (`ProductoService` y servicios relacionados):** revisión de la lógica de negocio, manejo de excepciones y validaciones antes de registrar o modificar información.
+4. **Categorías y productos (`categorias.html`, `categorias.js`, `productos.html` y `productos.js`):** apoyo para revisar la integración con los endpoints, el listado de información y las operaciones del catálogo.
+5. **Variantes, tallas y stock:** revisión de las tallas permitidas, las variantes de cada producto y las validaciones relacionadas con el stock.
+6. **Página de ayuda (`ayuda.html` y `ayuda.js`):** apoyo para mostrar las instrucciones según el rol del usuario, diferenciando las opciones disponibles para administradora y vendedor.
+7. **Integración y Git:** revisión de cambios entre ramas, solución de problemas durante la integración, ejecución de pruebas y preparación de commits y Pull Requests.
+
+### Errores de la IA y cómo se corrigieron:
+- La IA ubicó inicialmente `Validador.java` en el paquete `validacion`, pero el proyecto requería `pe.tecsup.sileliz.util`. Se movió la clase y se corrigieron sus importaciones.
+- En algunas propuestas utilizó métodos o nombres que no coincidían con las clases reales del proyecto. Se corrigieron comparando las sugerencias con el código existente y las firmas de los métodos.
+- Para las categorías se planteó inicialmente trabajar con datos simulados (`categorias.json`). Después se ajustó la implementación para utilizar la API y la información de la base de datos.
+- Una validación lanzaba `IllegalArgumentException`, lo que podía terminar en una respuesta HTTP 500. Se ajustó el manejo de errores para utilizar `DatoInvalidoException` y responder con el código 400 cuando los datos enviados no eran válidos.
+- Algunas sugerencias proponían cambios en archivos que ya estaban integrados o eran responsabilidad de otros compañeros. Se revisaron los responsables y se limitaron los cambios a las tareas correspondientes para evitar afectar el trabajo del equipo.
+
+### Cómo se comprobó:
+- Se revisaron los cambios con Git antes de integrarlos y se ejecutaron pruebas en NetBeans.
+- `ProductoService` pasó sus 48 pruebas JUnit y Clean and Build finalizó correctamente.
+- La página de ayuda se comprobó con ambos roles: administradora y vendedor, verificando que se mostraran los temas correspondientes.
+- En la integración final se ejecutó `bd\recrear_bd.cmd demo`, se verificaron los datos de prueba y NetBeans mostró `BUILD SUCCESSFUL`.
+- Finalmente, las 337 pruebas JUnit del proyecto pasaron y se comprobó el ingreso y la navegación con los roles de administradora y vendedor.
+
+### Criterios de uso:
+- La IA se utilizó como apoyo para revisar código, entender errores, comparar alternativas y resolver dudas durante la implementación.
+- Las sugerencias se contrastaron con la estructura real del proyecto, sus clases, métodos y requisitos.
+- Los cambios se comprobaron mediante compilación, pruebas automatizadas y verificaciones funcionales antes de considerarlos terminados.
+- La revisión y responsabilidad sobre el código implementado se mantuvieron de mi parte.
